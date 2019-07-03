@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+import os 
 
 """
 This script takes 3 inputs <source conllu output> <alignments> <parallel text>
@@ -18,7 +19,7 @@ corpora = open(sys.argv[3], 'r', encoding="utf-8").readlines()
 
 num_dummy_heads = 0
 num_dummy_labels = 0
-
+target_corpus_token_count = 0
 
 # list of conllu rels excluding root
 rels = ['nsubj', 'obj', 'iobj', 'csubj', 'ccomp', 'xcomp', 'obl', 'vocative', 'expl', 
@@ -116,70 +117,84 @@ def extract_source_feats(source_index, token_index, align_sent, ud_sent, target_
     Returns a conllu row (list of conllu feats)
     """
 
-    # target row we are writing.
-    conllu_row = []
+    # sometimes we might have an alignment in the dictionary but it is actually out of range
+    try:
+        # target row we are writing.
+        conllu_row = []
+        source_data = ud_sent[source_index]
+        # separate into items.
+        source_data = " ".join(source_data).split()
 
-    source_data = ud_sent[source_index]
-    # separate into items.
-    source_data = " ".join(source_data).split()
+        # a very small number of sentences will have encoding issues and it gets parsed incorrectly, e.g. sentence 19992
+        # add dummy labels/head and decode later.
+        if len(source_data) != 10:
+            source_upos = '_'
+            target_head = -1
+            num_dummy_heads += 1
+            random_label = np.random.choice(rels)
+            num_dummy_labels += 1
+            source_label = random_label
+            # TODO upos will be token in upos list, head will be int, label will be token in labels.
+        else:
+            # extract annotations.
+            source_upos = source_data[3]
+            source_head = source_data[6]
+            source_label = source_data[7]
+            #print(source_upos, source_head, source_label)
 
-    # a very small number of sentences will have encoding issues and it gets parsed incorrectly, e.g. sentence 19992
-    # add dummy labels/head and decode later.
-    if len(source_data) != 10:
-        source_upos = '_'
-        target_head = -1
-        num_dummy_heads += 1
-        random_label = np.random.choice(rels)
-        num_dummy_labels += 1
-        source_label = random_label
-        # TODO upos will be token in upos list, head will be int, label will be token in labels.
-    else:
-        # extract annotations.
-        source_upos = source_data[3]
-        source_head = source_data[6]
-        source_label = source_data[7]
-        #print(source_upos, source_head, source_label)
+            # we don't want to naively take the head value of the source word as the head of the target word as the word order might be different.
+            # invert the dictionary and query using the source key to find the target token.
+            source_targ_dict = {v: k for (k, v) in align_sent.items()}
 
-        # we don't want to naively take the head value of the source word as the head of the target word as the word order might be different.
-        # invert the dictionary and query using the source key to find the target token.
-        source_targ_dict = {v: k for (k, v) in align_sent.items()}
+            # source head is 1-indexed (conllu item) but the alignment dict is 0-indexed.
+            source_key = int(source_head) - 1
+            #print("source head {}: source key: {}".format(source_head, source_key))
 
-        # source head is 1-indexed (conllu item) but the alignment dict is 0-indexed.
-        source_key = int(source_head) - 1
-        #print("source head {}: source key: {}".format(source_head, source_key))
+            # a source key of -1 would be the ROOT token which has index 0.
+            #if we know the source's head is ROOT we just take that as the target HEAD.
+            if source_key != -1:
+                try:
+                    target_value = source_targ_dict[source_key]
+                    #print(target_value)                
+                    target_head = int(target_value) + 1 # 0 - 1-index.
+                    #print(target_head)
+                    # don't allow target head to be outside the range of the sentence.
+                    if target_head > num_target_tokens:
+                        target_head = -1
+                        num_dummy_heads += 1
 
-        # a source key of -1 would be the ROOT token which has index 0.
-        # if we know the source's head is ROOT we just take that as the target HEAD.
-        if source_key != -1:
-            try:
-                target_value = source_targ_dict[source_key]
-                #print(target_value)                
-                target_head = int(target_value) + 1 # 0 - 1-index.
-                #print(target_head)
-                # don't allow target head to be outside the range of the sentence.
-                if target_head > num_target_tokens:
+                # sometimes the source sentence has a head that we don't have the target sentence.
+                except KeyError:
+                    # append the upos and label information, but we will append a dummy head ID.
                     target_head = -1
                     num_dummy_heads += 1
+            else:
+                # ROOT token
+                target_head = 0
+                have_seen_root = True
 
-            # sometimes the source sentence has a head that we don't have the target sentence.
-            except KeyError:
-                # append the upos and label information, but we will append a dummy head ID.
-                target_head = -1
-                num_dummy_heads += 1
-        else:
-            # ROOT token
-            target_head = 0
-            have_seen_root = True
+        # append conllu items
+        conllu_fields = ("\t".join([str(token_index), target_token, "_", source_upos, "_", "_", str(target_head), source_label, "_", "_"]))
+        print(conllu_fields)
+        conllu_row.append(conllu_fields)
 
-    # append conllu items
-    conllu_fields = ("\t".join([str(token_index), target_token, "_", source_upos, "_", "_", str(target_head), source_label, "_", "_"]))
-    print(conllu_fields)
+    except IndexError:
+        target_head = -1
+        random_label = np.random.choice(rels)
+        source_label = random_label
+        source_upos = '_'
+        num_dummy_heads += 1
+        num_dummy_labels += 1
 
-    conllu_row.append(conllu_fields)
+        conllu_fields = ("\t".join([str(token_index), target_token, "_", source_upos, "_", "_", str(target_head), source_label, "_", "_"]))
+        print(conllu_fields)
+        conllu_row.append(conllu_fields)
+    
+    
     return conllu_row, have_seen_root
 
 
-def transfer_tree(i, source_indices, align_sent, ud_sent, target_sent, file):
+def transfer_tree(i, source_indices, align_sent, ud_sent, target_sent, num_target_tokens):
     """
     Assigns source annotations to each target token in a sentence.
     Calls 'extract_source_feats' to get conllu row features for tokens
@@ -209,7 +224,6 @@ def transfer_tree(i, source_indices, align_sent, ud_sent, target_sent, file):
     token_index = 0
     targ_index = 0
 
-    num_target_tokens = len(target_sent)
     print("num t tokens", num_target_tokens)
     
     # assign annotations for each token in the target sentence.
@@ -219,6 +233,7 @@ def transfer_tree(i, source_indices, align_sent, ud_sent, target_sent, file):
         # Case 1) There is an alignment between target and source indices.
         try:
             source_index = align_sent[targ_index]
+            print("this is the source index found {} using target index {}".format(source_index, targ_index))
             # NOTE: assumes we will always have a mapping for root.
             current_row, have_seen_root = extract_source_feats(source_index, token_index, align_sent, ud_sent, target_token, num_target_tokens, have_seen_root)
         
@@ -301,7 +316,7 @@ def transfer_tree(i, source_indices, align_sent, ud_sent, target_sent, file):
     return conllu_sent
 
 
-def decode_trees(target_sent):
+def decode_trees(target_sent, num_target_tokens):
     """
     Decoding step which assigns heads to unassigned heads
     in the direction of the ROOT token.
@@ -320,7 +335,6 @@ def decode_trees(target_sent):
     
     print("decoding tree")
     print(target_sent)
-    num_tokens = len(target_sent)
          
     # make sure we have seen ROOT but not more than once.
     #=============================================================
@@ -335,7 +349,7 @@ def decode_trees(target_sent):
     elif root_count > 1:
         true_root = root_index
         # set all other tokens to something else.
-        for r in range(num_tokens):
+        for r in range(num_target_tokens):
             # leave the true index alone (assumes 1:1 mapping)
             if r == true_root:
                 continue
@@ -357,7 +371,7 @@ def decode_trees(target_sent):
     # make sure there are no cycles and assign heads/labels to dummy annotations.
     #=============================================================
     
-    for i in range(num_tokens):
+    for i in range(num_target_tokens):
         conllu_data = target_sent[i]
         conllu_data = " ".join(conllu_data).split()
 
@@ -367,14 +381,13 @@ def decode_trees(target_sent):
         
         if token_id == head_id:
             raise ValueError("A token can't be its own head!")
-        elif head_id > num_tokens:
+        elif head_id > num_target_tokens:
             # this is probably a result of taking the source token's head which we would not
             # normally have in our target sentence but was added there because of check_align.
-            raise ValueError("Head of token {} is outside the range of the sentence {}!".format(token_id, num_tokens))
+            raise ValueError("Head of token {} is outside the range of the sentence {}!".format(token_id, num_target_tokens))
             
         # make sure there are labels
         if head_label == "_":
-            raise ValueError("Has this not been sorted yet?")
             # random choice
             random_label = np.random.choice(rels)            
             conllu_data[6] = random_label
@@ -382,7 +395,6 @@ def decode_trees(target_sent):
             # need to change the value in conllu sent.
             target_sent[i] = conllu_data
             
-
         if head_id == -1:
             print("Unallocated head ID")
             num_dummy_heads += 1
@@ -451,7 +463,7 @@ def decode_trees(target_sent):
     # final step to make sure the above worked for all cases.
     #=============================================================
 
-    for j in range(num_tokens):
+    for j in range(num_target_tokens):
         conllu_data = target_sent[j]
         conllu_data = " ".join(conllu_data).split()
 
@@ -461,7 +473,7 @@ def decode_trees(target_sent):
         if head_id == -1:
             raise ValueError("Unassigned head was not processed.")
         if head_label == "_":
-            raise ValueError("Unassigned label was not processed.")
+            raise ValueError("Unassigned label was not processed on row {}.".format(conllu_data))
     
     print(target_sent)
     return target_sent
@@ -555,10 +567,25 @@ ud_res, num_tokens, num_sents = ud_parse(ud)
 align_res = align_arr(align)
 corpora_res = corpora_arr(corpora)
 
+outdir = 'output'
+if not os.path.exists(outdir):
+    os.mkdir(outdir)
+           
+# change metadata
+filestring = sys.argv[1].split('/')[-1]
+metadata = filestring.split('.')
+targ_src = metadata[2]
+targ_src = targ_src.split('-')
+src_targ = targ_src[1] + '-' + targ_src[0]
+metadata[2] = src_targ
+metadata[-2] = 'projected'
+filestring = ('.'.join([m for m in metadata]))
+filepath = outdir + '/' + filestring
 
-file = open("z.conllu", "w")
-for i in range(0, len(align_res)): # 28861 (the parallel texts have 28862)
+file = open(filepath, "w")
+for i in range(0, len(align_res)):
 #for i in range(0, 10):
+    print("SOURCE:", ud_res[i])
     sent_id = '# sent_id = ' + str(i+1) + '\n'
     text = '# text = ' + ' '.join(corpora_res[i][1]) + '\n' # [1] is the target sentence.
     print(sent_id)
@@ -574,6 +601,8 @@ for i in range(0, len(align_res)): # 28861 (the parallel texts have 28862)
     source_indices = [ud_res[i][j][0] for j in range(0, source_len)]
     
     target_sent = ' '.join(corpora_res[i][1]).strip().split() # [1]: target sentence
+    num_target_tokens = len(target_sent)
+    target_corpus_token_count += num_target_tokens
 
     # MWT handling
     if '-' in ''.join(source_indices):
@@ -582,9 +611,9 @@ for i in range(0, len(align_res)): # 28861 (the parallel texts have 28862)
     else:
 
         conllu_sent = transfer_tree(i, source_indices, check_align(align_res[i], source_indices, target_sent), \
-                                    ud_res[i], target_sent, file)
+                                    ud_res[i], target_sent, num_target_tokens)
         # decode the tree
-        cleaned_sent = decode_trees(conllu_sent)
+        cleaned_sent = decode_trees(conllu_sent, num_target_tokens)
         
         # write sentence features to file.
         for sent in cleaned_sent:
@@ -593,6 +622,6 @@ for i in range(0, len(align_res)): # 28861 (the parallel texts have 28862)
         file.write('\n')
 file.close()
 
-# TODO need target token count:       
 print("assigned {} dummy heads".format(num_dummy_heads))
 print("assigned {} dummy labels".format(num_dummy_labels))
+print("target tokens: {} dummy heads: {}, {}%".format(target_corpus_token_count, num_dummy_heads, num_dummy_heads/target_corpus_token_count))
