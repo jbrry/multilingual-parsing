@@ -38,7 +38,8 @@ local learning_rate = 0.1;
              "encoder": {
                "type": "lstm",
                "input_size": char_embedding_dim,
-               "hidden_size": char_embedding_dim
+               "hidden_size": char_embedding_dim,
+               "bidirectional": true
                }
              }
         },
