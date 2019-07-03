@@ -2,7 +2,7 @@
 Repository for paper submission to the DeepLo Workshop 2019. 
 
 ## Set up environment
-Follow the download instructions for AllenNLP to create an environment with AllenNLP installed: https://github.com/allenai/allennlp.
+Follow the instructions to create an environment with AllenNLP installed: https://github.com/allenai/allennlp.
 
 ## Obtain data
 To obtain the original Faroese data for these experiments please clone the original repository to somewhere in your file system, e.g. in your home directory:
