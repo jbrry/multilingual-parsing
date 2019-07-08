@@ -1,7 +1,7 @@
 local word_embedding_dim = 100;
 local char_embedding_dim = 32;
 local pos_embedding_dim = 50;
-local embedding_dim = word_embedding_dim + pos_embedding_dim + char_embedding_dim;
+local embedding_dim = word_embedding_dim + pos_embedding_dim + char_embedding_dim + char_embedding_dim;
 local hidden_dim = 400;
 local num_epochs = 10;
 local patience = 10;
@@ -10,20 +10,21 @@ local learning_rate = 0.1;
 
 {
   "dataset_reader":{
-    "type":"universal_dependencies_monolingual",
+    "type":"universal_dependencies",
       "token_indexers": {
         "tokens": { 
         "type": "single_id" 
         },
         "token_characters": { 
-        "type": "characters" 
+        "type": "characters",
+        "min_padding_length": 3
         }
       }
     },
-    "train_data_path": std.extVar("TRAIN_PATH"),
-    "validation_data_path":  std.extVar("DEV_PATH"),
+    "train_data_path": std.extVar("TRAIN_DATA_PATH"),
+    "validation_data_path":  std.extVar("DEV_DATA_PATH"),
     "model": {
-      "type": "biaffine_parser_monolingual",
+      "type": "biaffine_parser",
       "text_field_embedder": {
         "token_embedders": {
           "tokens": {
@@ -39,9 +40,10 @@ local learning_rate = 0.1;
                "type": "lstm",
                "input_size": char_embedding_dim,
                "hidden_size": char_embedding_dim,
+               "num_layers": 2,
                "bidirectional": true
                }
-             }
+           }
         },
       },
       "pos_tag_embedding":{
