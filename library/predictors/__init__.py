@@ -1,0 +1,1 @@
+from library.predictors.biaffine_dependency_parser_monolingual_predictor import BiaffineDependencyParserPredictorMonolingual
