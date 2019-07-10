@@ -40,3 +40,6 @@ The projection script may not always produce valid trees in the target language.
 `validate_treebank.py` - on `combined_four.conllu`. this validates the treebank created by MST voting over 4 trees and puts the treebank in the `validated` folder.
 `check_double_headed.py` - on `validated/combined_four.conllu` which produces `validated/comb.conllu`
 `train_model.py` - TODO
+
+## Train target model
+
