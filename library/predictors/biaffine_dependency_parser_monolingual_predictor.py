@@ -20,8 +20,7 @@ class BiaffineDependencyParserPredictorMonolingual(Predictor):
         super().__init__(model, dataset_reader)
 
         
-    def predict(self, sentence: str) -> JsonDict:
-        
+    def predict(self, sentence: str) -> JsonDict: 
         return self.predict_json({"sentence": sentence})
 
     @overrides
@@ -29,10 +28,15 @@ class BiaffineDependencyParserPredictorMonolingual(Predictor):
         """
         Expects JSON that looks like ``{"sentence": "..."}``.
         Runs the underlying model, and adds the ``"words"`` to the output, also tags and parse??.
-        see neural lemmatizer if not using spacy tokenizer.
-		"""
+        """
         spacy_tokens = self._tokenizer.split_words(json_dict["sentence"])
         sentence_text = [token.text for token in spacy_tokens]
+
+        #labels = json_dict["head_tags"]
+        #for i, label in enumerate(labels):
+        #    if label not in self._model.vocab._token_to_index["head_tags"]:
+        #        label = None
+        #        labels[i] = label
 
         if self._dataset_reader.use_language_specific_pos: # type: ignore
             # fine-grained part of speech
@@ -42,7 +46,37 @@ class BiaffineDependencyParserPredictorMonolingual(Predictor):
 
         pos_tags = [token.pos_ for token in spacy_tokens]
         
-        
+        return self._dataset_reader.text_to_instance(sentence_text, pos_tags)
+
+    @overrides
+    def predict_instance(self, instance: Instance) -> JsonDict:
+        if "@@UNKNOWN@@" not in self._model.vocab._token_to_index["head_tags"]:
+            # Handle cases where the labels are present in the test set but not training set
+            # https://github.com/Hyperparticle/udify/blob/b6a1173e7e5fc1e4c63f4a7cf1563b469268a3b8/udify/predictors/predictor.py
+            self._predict_unknown(instance)
+
+        outputs = self._model.forward_on_instance(instance)
+        return sanitize(outputs)
+
+    def _predict_unknown(self, instance: Instance):
+        """
+        Maps each unknown label in each namespace to a default token
+        :param instance: the instance containing a list of labels for each namespace
+        from: https://github.com/Hyperparticle/udify/blob/b6a1173e7e5fc1e4c63f4a7cf1563b469268a3b8/udify/predictors/predictor.py
+        """
+        def replace_tokens(instance: Instance, namespace: str, token: str):
+            if namespace not in instance.fields:
+                return
+
+            instance.fields[namespace].labels = [label
+                                                 if label in self._model.vocab._token_to_index[namespace]
+                                                 else token
+                                                 for label in instance.fields[namespace].labels]
+
+        replace_tokens(instance, "upos", "NOUN")
+        replace_tokens(instance, "head_tags", "case")
+
+
     def dump_line(self, outputs: JsonDict) -> str:
         global sentence_index
         
