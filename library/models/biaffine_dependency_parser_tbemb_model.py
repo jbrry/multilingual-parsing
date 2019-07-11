@@ -11,16 +11,16 @@ from allennlp.data import Vocabulary
 from allennlp.modules import Seq2SeqEncoder, TextFieldEmbedder, Embedding
 from allennlp.modules import FeedForward
 from allennlp.models.model import Model
-from allennlp.models.biaffine_dependency_parser import BiaffineDependencyParser
 from allennlp.nn import InitializerApplicator, RegularizerApplicator
 from allennlp.nn.util import get_text_field_mask
 from allennlp.training.metrics import AttachmentScores
+from library.models.biaffine_dependency_parser_monolingual_model import BiaffineDependencyParserMonolingual
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
 @Model.register("biaffine_parser_tbemb")
-class BiaffineDependencyParserTbemb(BiaffineDependencyParser):
+class BiaffineDependencyParserTbemb(BiaffineDependencyParserMonolingual):
     """
     This dependency parser implements the multi-lingual extension
     of the Dozat and Manning (2016) model as described in
