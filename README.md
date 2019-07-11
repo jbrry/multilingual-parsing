@@ -25,11 +25,11 @@ To train parsing models for the included source treebanks run `./train_monolingu
 To train a unified model with a treebank embedding run `./train_tbemb_parser.sh` TODO
 
 ## Predict using source models
-To predict annotations for a file translated into a source language run `./predict_monolingual_parser.sh`
+To use a source model to predict annotations for files translated into source languages run `predict_source_models.sh`
 To predict annotations for a file translated using a model trained on all source languages run `./predict_tbemb_parser.sh` TODO
 
 ## Project from source languages to target
-`python utils/project-aligned-trees.py <> <> <>`
+`scripts/project_all.sh`
 
 ## Clean treebanks
 The projection script may not always produce valid trees in the target language. As such, a number of scripts need to be run:
@@ -40,3 +40,6 @@ The projection script may not always produce valid trees in the target language.
 `validate_treebank.py` - on `combined_four.conllu`. this validates the treebank created by MST voting over 4 trees and puts the treebank in the `validated` folder.
 `check_double_headed.py` - on `validated/combined_four.conllu` which produces `validated/comb.conllu`
 `train_model.py` - TODO
+
+## Train target model
+
