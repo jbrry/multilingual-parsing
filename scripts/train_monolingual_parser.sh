@@ -15,6 +15,6 @@ for tbid in en_lines ; do
   export DEV_PATHNAME=${TB_DIR}/${tb_name}/${tbid}-ud-dev.conllu
   #export TEST_PATHNAME=/home/jbarry/ud-treebanks-v2.3/${tb_name}/${tbid}-ud-test.conllu
   
-  allennlp train ../configs/monolingual/dependency_parser_char.jsonnet -s ../output/monolingual/${tbid} --include-package library
+  allennlp train ../configs/monolingual/dependency_parser_char.jsonnet -s ../output/monolingual/source_models/${tbid} --include-package library
   done
 done
