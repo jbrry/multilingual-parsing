@@ -3,8 +3,10 @@ Repository for paper submission to the DeepLo Workshop 2019.
 
 ## Set up environment
 
-This project uses AllenNLP, which can be installed by: 
+This project is developed in Python 3.6 and uses AllenNLP. Assuming you are using Anaconda:
 
+`cd multilingual_paring`
+`conda create -n multilingual_parsing python=3.6`
 `pip install allennlp`
 
 ## Obtain data
