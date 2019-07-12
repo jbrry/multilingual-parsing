@@ -5,14 +5,14 @@ Repository for cross-lingual parsing for low-resource languages by means of anno
 ## Table of Contents
 
 - [Installation](#installation)
-- [Getting Started: sentations](#getting-started-evaluating-representations)
+- [Obtain data](#obtain-data)
 - [References](#references)
 
 ## Installation
 
 This project is developed in Python 3.6 using a [Conda](https://conda.io/) environment.
 
-1.  [Download and install Conda](https://conda.io/docs/download.html).
+1.  [Download and install Conda](https://conda.io/projects/conda/en/latest/user-guide/install/linux.html).
 
 2.  Change directory to your clone of this repo.
 
