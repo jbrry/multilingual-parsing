@@ -3,14 +3,15 @@ local char_embedding_dim = 32;
 local pos_embedding_dim = 50;
 local embedding_dim = word_embedding_dim + pos_embedding_dim + char_embedding_dim + char_embedding_dim;
 local hidden_dim = 400;
-local num_epochs = 50;
+local num_epochs = 10;
 local patience = 10;
 local batch_size = 128;
 local learning_rate = 0.1;
 
 {
   "dataset_reader":{
-    "type":"universal_dependencies",
+    "type":"universal_dependencies_monolingual",
+    "disable_dependencies": false,
       "token_indexers": {
         "tokens": { 
         "type": "single_id" 
