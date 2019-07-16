@@ -72,14 +72,11 @@ This should create a directory structure `multilingual-parsing/data/`.
     ./train_multilingual_parser.sh
     ```
 
-## Predict
-1.  Use a source model to predict annotations for files translated into source languages.
+## Predict source-translated files
+1.  Use a source model to predict annotations for files translated into source languages. The `model_type` argument supplied can be either `monolingual` or `multilingual` and determines whether to use a monolingual or multilingual model accordingly.
+
     ```bash
-    ./predict_source_treebanks_monolingual.sh
-    ```
-2.  Use a multilingual source model to predict annotations for files translated into source languages.
-    ```bash
-    ./predict_source_treebanks_multilingual.sh
+    ./predict_source_treebanks.sh <model_type>
     ```
 
 ## Projection steps
