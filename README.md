@@ -108,5 +108,5 @@ This should create a directory structure `multilingual-parsing/data/`.
     ```
 2.  Use a multilingual source model to predict annotations for files translated into source languages.
     ```bash
-    ./predict_tbemb_parser.sh
+    ./predict_multilingual_parser.sh
     ```
