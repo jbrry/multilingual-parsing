@@ -7,8 +7,9 @@ Repository for cross-lingual parsing for low-resource languages by means of anno
 - [Installation](#installation)
 - [Obtain data](#obtain-data)
 - [Train models](#train-models)
-- [Projection steps](#projection-steps)
 - [Predict](#predict)
+- [Projection steps](#projection-steps)
+
 
 ## Installation
 
@@ -66,11 +67,21 @@ This should create a directory structure `multilingual-parsing/data/`.
     ```bash
     ./train_monolingual_parser.sh
     ```
-2.  Train multilingual parsing model for the source languages.
+2.  Train a multilingual parsing model for the source languages.
     ```bash
     ./train_multilingual_parser.sh
     ```
-    
+
+## Predict
+1.  Use a source model to predict annotations for files translated into source languages.
+    ```bash
+    ./predict_source_treebanks_monolingual.sh
+    ```
+2.  Use a multilingual source model to predict annotations for files translated into source languages.
+    ```bash
+    ./predict_source_treebanks_multilingual.sh
+    ```
+
 ## Projection steps
 1.  Project from source languges to the target language.
     ```bash
@@ -100,13 +111,3 @@ This should create a directory structure `multilingual-parsing/data/`.
     ```bash
     python utils/check_double_headed.py
     ```    
-
-## Predict
-1.  Use a source model to predict annotations for files translated into source languages.
-    ```bash
-    ./predict_source_models.sh
-    ```
-2.  Use a multilingual source model to predict annotations for files translated into source languages.
-    ```bash
-    ./predict_multilingual_parser.sh
-    ```
