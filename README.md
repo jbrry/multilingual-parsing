@@ -6,8 +6,8 @@ Repository for cross-lingual parsing for low-resource languages by means of anno
 
 - [Installation](#installation)
 - [Obtain data](#obtain-data)
-- [Train models](#train-models)
-- [Predict](#predict)
+- [Train models](#train-source-models)
+- [Predict](#predict-translated-source-files)
 - [Projection steps](#projection-steps)
 
 
@@ -62,17 +62,14 @@ This should create a directory structure `multilingual-parsing/data/`.
     ./scripts/get_ud_treebank.sh
     ```
 
-## Train models
-1.  Train monolingual parsing models for the source languages.
+## Train source models
+1.  Train a source model on source treebanks. The model_type argument supplied can be either `monolingual` or `multilingual` and determines whether to use a monolingual or multilingual model accordingly.
+
     ```bash
-    ./train_monolingual_parser.sh
-    ```
-2.  Train a multilingual parsing model for the source languages.
-    ```bash
-    ./train_multilingual_parser.sh
+    train_source_model.sh <model_type>
     ```
 
-## Predict source-translated files
+## Predict translated source files
 1.  Use a source model to predict annotations for files translated into source languages. The `model_type` argument supplied can be either `monolingual` or `multilingual` and determines whether to use a monolingual or multilingual model accordingly.
 
     ```bash
