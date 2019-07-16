@@ -63,7 +63,7 @@ This should create a directory structure `multilingual-parsing/data/`.
     ```
 
 ## Train source models
-1.  Train a source model on source treebanks. The model_type argument supplied can be either `monolingual` or `multilingual` and determines whether to use a monolingual or multilingual model accordingly.
+1.  Train a source model on source treebanks. The `model_type` argument supplied can be either `monolingual` or `multilingual` and determines whether to use a monolingual or multilingual model accordingly.
 
     ```bash
     train_source_model.sh <model_type>
