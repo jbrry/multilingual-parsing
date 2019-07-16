@@ -68,7 +68,7 @@ This should create a directory structure `multilingual-parsing/data/`.
     ```
 2.  Train multilingual parsing model for the source languages.
     ```bash
-    ./train_tbemb_parser.sh
+    ./train_multilingual_parser.sh
     ```
     
 ## Projection steps
