@@ -4,7 +4,7 @@ local pos_embedding_dim = 50;
 local tb_embedding_dim = 12;
 local embedding_dim = word_embedding_dim + pos_embedding_dim + tb_embedding_dim + char_embedding_dim + char_embedding_dim;
 local hidden_dim = 400;
-local num_epochs = 10;
+local num_epochs = 50;
 local patience = 10;
 local batch_size = 32;
 local learning_rate = 0.1;
@@ -12,7 +12,7 @@ local learning_rate = 0.1;
 {
   "dataset_reader":{
     "type":"universal_dependencies_tbemb",
-    "languages": ["da_ddt", "sv_lines", "no_nynorsk", "no_bokmaal"],
+    "languages": ["da_ddt", "sv_talbanken", "no_nynorsk", "no_bokmaal"],
 	"alternate": true,
 	"instances_per_file": 32,
 	"is_first_pass_for_vocab": true,
@@ -113,7 +113,7 @@ local learning_rate = 0.1;
     },
    "validation_dataset_reader": {
      "type": "universal_dependencies_tbemb",
-     "languages": ["da_ddt", "sv_lines", "no_nynorsk", "no_bokmaal"],
+     "languages": ["da_ddt", "sv_talbanken", "no_nynorsk", "no_bokmaal"],
      "alternate": false,
       "lazy": true,
       "token_indexers": {
