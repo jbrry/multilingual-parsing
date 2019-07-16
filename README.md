@@ -79,11 +79,11 @@ This should create a directory structure `multilingual-parsing/data/`.
 ## Projection steps
 1.  Project from source languges to the target language.
     ```bash
-    ./scripts/project_all.sh
+    ./scripts/project_all.sh <model_type>
     ```
 2.  Take only the valid sentences.
     ```
-    python utils/validate_treebank.py
+    ./scripts/validate_all.sh <model_type>
     ```
     
 3.  Combine sentences where we have 3/4 valid projected sentences.
