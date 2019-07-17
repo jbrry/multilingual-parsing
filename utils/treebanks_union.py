@@ -91,8 +91,9 @@ if __name__ == '__main__':
     treebanks = []
 
     for treebank in os.listdir(val_path):
-        print(treebank)
-        treebanks.append(treebank)
+        if 'comb' not in treebank:
+            print(treebank)
+            treebanks.append(treebank)
     
     union = treebanks_dict(val_path)
     fast_write_3_4(union)
