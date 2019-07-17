@@ -1,15 +1,20 @@
-"""
-Takes a treebank as input.
-Creates a directory 'validated' and puts there only those sentences of
-the treebank which are valid.
-"""
-
 import sys
 import os
 from conllu_parser import Sentence
 
+"""
+Takes a treebank as input.
+Creates a directory 'validated' and puts there only those sentences of
+the treebank which are valid.
+
+Usage:
+    script.py <parsed_file> <model_type> 
+    <parsed_file> = parsed source file to be validated.
+    <model_type> = 'monolingual' or 'multilingual' 
+"""
+
 def validate(treebank):
-    print('treebank: ' + str(len(treebank)))
+    print('treebank sentences: ' + str(len(treebank)))
     doubled = []
     missing = []
     valid = []
@@ -35,14 +40,14 @@ def validate(treebank):
             too_large_head.append(s)
         else:
             valid.append(s)
-    print('doubled: ' + str(len(doubled)))
-    print('missing: ' + str(len(missing)))
-    print('wrong_order: ' + str(len(wrong_order)))
-    print('wrong_start: ' + str(len(wrong_start)))
-    print('too_large_head: ' + str(len(too_large_head)))
+    print('# doubled: ' + str(len(doubled)))
+    print('# missing: ' + str(len(missing)))
+    print('# wrong_order: ' + str(len(wrong_order)))
+    print('# wrong_start: ' + str(len(wrong_start)))
+    print('# too_large_head: ' + str(len(too_large_head)))
     # for item in too_large_head:
     #   print(item)
-    print('valid: ' + str(len(valid)))
+    print('# valid: ' + str(len(valid)))
     return valid
 
 
@@ -51,17 +56,16 @@ def main():
         sents = f.read().split('\n\n')
         treebank = [Sentence(s) for s in sents if s]
     treebank = validate(treebank)
-    # print(treebank)
     
-    # /home/jbarry/DeepLo2019/multilingual-parsing/output/monolingual/validated/
-    outpath = str(sys.argv[2])
-    if not os.path.exists(outpath):
-        print('making outdir {}'.format(outpath)
-        os.mkdir(outpath)
+    # create relevant 'validated' directory
+    model_type = str(sys.argv[2])
+    out_path = os.path.join('output', model_type, 'validated')
+    if not os.path.exists(out_path):
+        print('making outdir {}'.format(out_path))
+        os.mkdir(out_path)
         
-    with open(outpath + sys.argv[1].split('/')[-1], 'w', encoding='utf-8') as f:
+    with open(out_path + '/' + sys.argv[1].split('/')[-1], 'w', encoding='utf-8') as f:
         f.write('\n\n'.join(str(s) for s in treebank))
-
 
 if __name__ == '__main__':
     main()
