@@ -270,6 +270,8 @@ if __name__ == '__main__':
     model_type = str(sys.argv[-1])
     print(model_type)
     out_path = os.path.join('output', model_type, 'tmp')
+    print('out path: {}'.format(out_path))
+
     if not os.path.exists(out_path):
         print('could not find out path: {}'.format(out_path))
         os.mkdir(out_path)
