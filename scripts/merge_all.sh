@@ -10,5 +10,6 @@ model_type=$1
 python utils/conllu_graphs.py output/${model_type}/tmp/four_1st.conllu \
     output/${model_type}/tmp/four_2nd.conllu \
     output/${model_type}/tmp/four_3rd.conllu \
-    output/${model_type}/tmp/four_4th.conllu 
-   
+    output/${model_type}/tmp/four_4th.conllu \
+    ${model_type}
+
