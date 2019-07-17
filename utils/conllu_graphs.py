@@ -1,3 +1,4 @@
+import os
 import sys
 from collections import Counter
 from conllu_parser import *
@@ -129,7 +130,8 @@ def get_treebank():
     """
     treebank = []
     nob = []
-    for fname in sys.argv[1:]:
+    for fname in sys.argv[1:-1]:
+        print(fname)
         with open(fname) as f:
             sents = f.read().split('\n\n')
 
@@ -261,14 +263,24 @@ def find_max_incoming(cycle):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('Usage:\npython3 conllu-graphs.py treebank1.conllu [treebank2.conllu, ...]')
+    if len(sys.argv) < 3:
+        print('Usage:\npython3 conllu_graphs.py treebank1.conllu [treebank2.conllu, ...] model_type')
         quit()
+
+    model_type = str(sys.argv[-1])
+    print(model_type)
+    out_path = os.path.join('output', model_type, 'tmp')
+    if not os.path.exists(out_path):
+        print('could not find out path: {}'.format(out_path))
+        os.mkdir(out_path)
+
+
     treebank, difflen_nob = get_treebank()
     print('difflen_nob: ' + str(len(difflen_nob)))
     combined = get_combined(treebank)
-    print(combined)
-    with open('tmp/combined_four.conllu', 'w') as f:
+
+    with open(f'{out_path}/combined_four.conllu', 'w') as f:
         f.write('\n\n'.join(combined))
-    with open('tmp/combined_difflen_four.conllu', 'w') as f:
+    with open(f'{out_path}/combined_difflen_four.conllu', 'w') as f:
         f.write('\n\n'.join(str(s) for s in difflen_nob))
+

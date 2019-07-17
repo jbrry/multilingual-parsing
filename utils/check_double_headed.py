@@ -1,6 +1,10 @@
+import sys
 from conllu_parser import Sentence
 
-with open('validated/combined_four.conllu') as f:
+model_type = str(sys.argv[1])
+print('model type: '.format(model_type))
+
+with open(f'output/{model_type}/validated/combined_four.conllu') as f:
     t = f.read()
 sents = [Sentence(s) for s in t.split('\n\n')]
 
@@ -26,8 +30,8 @@ for sent in sents:
         #     quit()
     else:
         doubleheaded.append(sent)
-print('good: ' + str(len(good)))
-print('doubleheaded: ' + str(len(doubleheaded)))
+print('# good: ' + str(len(good)))
+print('# doubleheaded: ' + str(len(doubleheaded)))
 
-with open('validated/comb.conllu', 'w') as f:
+with open(f'output/{model_type}/validated/comb.conllu', 'w') as f:
     f.write('\n\n'.join(str(s) for s in good))
