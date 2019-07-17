@@ -10,8 +10,7 @@ src_type=$2
 
 TIMESTAMP=`date "+%Y%m%d-%H%M%S"` 
 
-TB_DIR='/home/jbarry/DeepLo2019/multilingual-parsing/output/'${model_type}'/validated/'
-
+TB_DIR='/home/jbarry/DeepLo2019/multilingual-parsing/output/'${model_type}'/validated'
 
 if [ ${src_type} == 'single' ]
     then echo "training using single source, i.e. not combining inputs..."
@@ -24,6 +23,8 @@ if [ ${src_type} == 'single' ]
 elif [ ${src_type} == 'multiple' ]
     then echo "training using multiple sources, e.g. MST voting..."
     export TRAIN_DATA_PATH=${TB_DIR}/comb.conllu
+    echo "using combined file at ${TB_DIR}/comb.conllu"
+    
     allennlp train configs/monolingual/dependency_parser_char_no_dev.jsonnet -s output/${model_type}/target_models/combined-$TIMESTAMP --include-package library
 fi
 
