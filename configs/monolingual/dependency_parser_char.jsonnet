@@ -3,9 +3,9 @@ local char_embedding_dim = 32;
 local pos_embedding_dim = 50;
 local embedding_dim = word_embedding_dim + pos_embedding_dim + char_embedding_dim + char_embedding_dim;
 local hidden_dim = 400;
-local num_epochs = 10;
+local num_epochs = 50;
 local patience = 10;
-local batch_size = 32;
+local batch_size = 128;
 local learning_rate = 0.1;
 
 {
@@ -77,7 +77,7 @@ local learning_rate = 0.1;
     "iterator": {
       "type": "bucket",
       "sorting_keys": [["words", "num_tokens"]],
-      "batch_size" : 128
+      "batch_size" : batch_size
     },
     "evaluate_on_test": false,
     "trainer": {
