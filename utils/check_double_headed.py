@@ -2,7 +2,7 @@ import sys
 from conllu_parser import Sentence
 
 model_type = str(sys.argv[1])
-print('model type: '.format(model_type))
+print('model type: {}'.format(model_type))
 
 with open(f'output/{model_type}/validated/combined_four.conllu') as f:
     t = f.read()
