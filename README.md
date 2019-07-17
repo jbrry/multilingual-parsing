@@ -82,26 +82,26 @@ This should create a directory structure `multilingual-parsing/data/`.
     ./scripts/project_all.sh <model_type>
     ```
 2.  Take only the valid sentences.
-    ```
+    ```bash
     ./scripts/validate_all.sh <model_type>
     ```
     
 3.  Combine sentences where we have 3/4 valid projected sentences.
-    ```
-    python utils/treebanks_union.py
+    ```bash
+    python utils/treebanks_union.py <model_type>
     ```
     
 4.  Perform MST voting over the matching, calidated sentences.
-    ```
-    python utils/conllu_graphs.py
+    ```bash
+    ./scripts/merge_all.sh <model_type>
     ```
     
 5.  Validate the voted sentences.
     ```bash
-    python utils/validate_treebank.py
+    python utils/validate_treebank.py output/<model_type>/tmp/combined_four.conllu <model_type>
     ```
     
 5.  Check for double-headed sentences.
     ```bash
-    python utils/check_double_headed.py
+    python utils/check_double_headed.py <model_type>
     ```    
