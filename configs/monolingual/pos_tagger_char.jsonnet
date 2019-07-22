@@ -9,7 +9,7 @@ local learning_rate = 0.01;
 
 {
   "dataset_reader":{
-    "type":"universal_dependencies_pos",
+    "type":"universal_dependencies_pos_monolingual",
       "token_indexers": {
         "tokens": { 
         "type": "single_id" 
@@ -22,7 +22,7 @@ local learning_rate = 0.01;
     "train_data_path": std.extVar("TRAIN_DATA_PATH"),
     "validation_data_path":  std.extVar("DEV_DATA_PATH"),
     "model": {
-      "type": "ud_tagger",
+      "type": "pos_tagger_monolingual",
       "text_field_embedder": {
         "token_embedders": {
           "tokens": {
