@@ -24,7 +24,7 @@ def lazy_parse(text: str, fields: Tuple[str, ...]=DEFAULT_FIELDS):
 
 
 @DatasetReader.register("universal_dependencies_pos_monolingual")
-class UniversalDependenciesDatasetReaderPos(DatasetReader):
+class UniversalDependenciesDatasetReaderPosMonolingual(DatasetReader):
     """
     Reads a file in the conllu Universal Dependencies format.
     Parameters
