@@ -17,7 +17,7 @@ from allennlp.training.metrics import CategoricalAccuracy
 
 
 @Model.register("pos_tagger_monolingual")
-class UDTagger(Model):
+class PosTaggerMonolingual(Model):
     """
     This ``SimpleTagger`` simply encodes a sequence of text with a stacked ``Seq2SeqEncoder``, then
     predicts a tag for each token in the sequence.
