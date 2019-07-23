@@ -15,31 +15,27 @@ Repository for cross-lingual parsing for low-resource languages by means of anno
 
 This project is developed in Python 3.6 using a [Conda](https://conda.io/) environment.
 
-1.  [Download and install Conda](https://conda.io/projects/conda/en/latest/user-guide/install/linux.html).
+[Download and install Conda](https://conda.io/projects/conda/en/latest/user-guide/install/linux.html).
 
-2.  Change directory to your clone of this repo.
+Create a Conda environment with Python 3.6:
 
-    ```bash
-    cd multilingual-parsing
-    ```
+```bash
+conda create -n multilingual_parsing python=3.6
+```
 
-3.  Create a Conda environment with Python 3.6.
+Activate the Conda environment:
 
-    ```bash
-    conda create -n multilingual_parsing python=3.6
-    ```
+```bash
+source activate multilingual_parsing
+```
+This project uses some new AllenNLP features which are not available in the official 0.8.4 release. As such, we will build the 0.8.5-unreleased version from the `master` branch on GitHub. If there are any problems try updating pip setuptoops and wheel as mentioned [here](https://packaging.python.org/tutorials/installing-packages/).
 
-4.  Activate the Conda environment.
-
-    ```bash
-    source activate multilingual_parsing
-    ```
-
-5.  Install the required dependencies. This project uses some new AllenNLP features which are not available in the official PyPI release. As such, we will use the 0.8.5-unreleased version from the `master` branch on GitHub.
-
-    ```bash
-    pip install https://github.com/allenai/allennlp/archive/master.zip
-    ```
+```bash
+cd
+git clone https://github.com/allenai/allennlp.git
+cd allennlp
+pip install --editable .
+```
 
 ## Obtain data
 You will need to obtain the original Faroese data for these experiments please. #TODO add this to a data section.
