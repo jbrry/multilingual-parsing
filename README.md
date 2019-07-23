@@ -37,6 +37,16 @@ cd allennlp
 pip install --editable .
 ```
 
+Make the `library` available in `$PYTHONPATH`. From the `multilingual_parsing` directory:
+
+```bash
+export PYTHONPATH="$PWD/library"
+
+# or permanently;
+vim ~/.bashrc
+export PYTHONPATH=/path/to/multilingual_parsing/library
+```
+
 ## Obtain data
 You will need to obtain the original Faroese data for these experiments please. #TODO add this to a data section.
 
