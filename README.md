@@ -19,23 +19,23 @@ This project is developed in Python 3.6 using a [Conda](https://conda.io/) envir
 
 Create a Conda environment with Python 3.6:
 
-    ```bash
-    conda create -n multilingual_parsing python=3.6
-    ```
+```bash
+conda create -n multilingual_parsing python=3.6
+```
 
 Activate the Conda environment:
 
-    ```bash
-    source activate multilingual_parsing
-    ```
+```bash
+source activate multilingual_parsing
+```
 This project uses some new AllenNLP features which are not available in the official 0.8.4 release. As such, we will build the 0.8.5-unreleased version from the `master` branch on GitHub. If there are any problems try updating pip setuptoops and wheel as mentioned [here](https://packaging.python.org/tutorials/installing-packages/).
 
-    ```bash
-    cd
-    git clone https://github.com/allenai/allennlp.git
-    cd allennlp
-    pip install --editable .
-    ```
+```bash
+cd
+git clone https://github.com/allenai/allennlp.git
+cd allennlp
+pip install --editable .
+```
 
 ## Obtain data
 You will need to obtain the original Faroese data for these experiments please. #TODO add this to a data section.
