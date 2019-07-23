@@ -46,7 +46,7 @@ class PosTaggerMonolingual(Model):
                  label_namespace: str = "labels",
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
-        super(UDTagger, self).__init__(vocab, regularizer)
+        super(PosTaggerMonolingual, self).__init__(vocab, regularizer)
 
         self.label_namespace = label_namespace
         self.text_field_embedder = text_field_embedder

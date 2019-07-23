@@ -21,6 +21,7 @@ local learning_rate = 0.01;
     },
     "train_data_path": std.extVar("TRAIN_DATA_PATH"),
     "validation_data_path":  std.extVar("DEV_DATA_PATH"),
+    "test_data_path":  std.extVar("TEST_DATA_PATH"),
     "model": {
       "type": "pos_tagger_monolingual",
       "text_field_embedder": {
@@ -67,12 +68,12 @@ local learning_rate = 0.01;
       "sorting_keys": [["tokens", "num_tokens"]],
       "batch_size" : batch_size
     },
-    "evaluate_on_test": false,
+    "evaluate_on_test": true,
     "trainer": {
       "num_epochs": num_epochs,
       "grad_norm": 5.0,
       "patience": 50,
-      "cuda_device": -1,
+      "cuda_device": 0,
       "validation_metric": "+accuracy",
       "optimizer": {
         "type": "dense_sparse_adam",

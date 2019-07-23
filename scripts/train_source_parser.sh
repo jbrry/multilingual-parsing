@@ -33,5 +33,4 @@ elif [ ${model_type} == 'multilingual' ]
   # files are found using the config file.
   allennlp train configs/multilingual/source_tbemb.jsonnet -s output/multilingual/source_models/da_sv_no-$TIMESTAMP \
   --include-package library
-
 fi

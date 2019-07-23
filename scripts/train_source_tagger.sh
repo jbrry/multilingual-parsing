@@ -11,7 +11,7 @@ if [ ${model_type} == 'monolingual' ]
    then echo "training monolingual model(s)..."
 
    for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
-      for filepath in $TB_DIR/*/$tbid-ud-train.conllu; do 
+      for filepath in ${TB_DIR}/*/${tbid}-ud-train.conllu; do 
   
       dir=`dirname $filepath`        # e.g. /home/james/ud_folder/ud-treebanks-v2.2/UD_Afrikaans-AfriBooms
       tb_name=`basename $dir`        # e.g. UD_Afrikaans-AfriBooms
@@ -21,8 +21,8 @@ if [ ${model_type} == 'monolingual' ]
       export DEV_DATA_PATH=${TB_DIR}/${tb_name}/${tbid}-ud-dev.conllu
       export TEST_DATA_PATH=${TB_DIR}/${tb_name}/${tbid}-ud-test.conllu
       
-      echo "training tagger model"
-      allennlp train configs/monolingual/pos_tagger_char.jsonnet -s output/monolingual/source_models/${tbid}-pos-${TIMESTAMP}
+      echo "training tagger model..."
+      allennlp train configs/monolingual/pos_tagger_char.jsonnet -s output/monolingual/source_models/${tbid}-pos-${TIMESTAMP} --include-package library
     done
   done
 
