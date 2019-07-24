@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-# e.g.: ./scripts/script monolingual pos ud dev
+# usage: ./scripts/predict_source_model.sh monolingual pos ud dev
+# if using files wihout annotations use: --overrides '{"dataset_reader": {"disable_dependencies": true}}'
 
 test -z $1 && echo "Missing model type: 'monolingual' or 'multilingual'"
 test -z $1 && exit 1
@@ -24,7 +25,7 @@ TB_DIR='data/ud-treebanks-v2.2'
 TIMESTAMP=`date "+%Y%m%d-%H%M%S"`
 
 for lang in dan swe nno nob; do
-# assign tbid to language
+  # assign tbid to language
   if [ "${lang}" = "dan" ]; then
     tbid=da_ddt
   elif [ "${lang}" = "swe" ]; then
@@ -37,79 +38,62 @@ for lang in dan swe nno nob; do
   
   echo "processing ${tbid}..."
 
-  ### POS
-  if [ ${task_type} == 'pos' ]
-    then echo "predicting pos"
+  #=== UD treebank ===
+  if [ "${file_type}" == 'ud' ]; then
+    echo "tagging UD treebank"
 
-    # check whether it's a mono- or multilingual model and change name accordingly
-    if [ ${model_type} == 'monolingual' ]
-      src=${tbid}-${task_type}
-    elif [ ${model_type} == 'multilingual' ]
-	  src="da_sv_no-'${task_type}'"
+    # find the appropriate UD treebank
+    for filepath in ${TB_DIR}/*/${tbid}-ud-train.conllu; do
+      dir=`dirname $filepath`
+      tb_name=`basename $dir`
+
+      PRED_FILE=${TB_DIR}/${tb_name}/${tbid}-ud-${data_type}.conllu
+      OUT_FILE=output/${model_type}/predicted/${tbid}-${task_type}.conllu
+    done
     fi
-    
-    # tag <ud> or <user> files (a file the user has created)
-    if [ ${file_type} == 'ud']
-      then echo "tagging UD treebank"
 
-      # find the appropriate UD treebank
-      for filepath in ${TB_DIR}/*/${tbid}-ud-train.conllu; do
-        dir=`dirname $filepath`
-        tb_name=`basename $dir`
+  #=== Model type ===
+  if [ "${model_type}" == 'monolingual' ]; then
+    src=${tbid}-${task_type}
+  elif [ "${model_type}" == 'multilingual' ]; then
+    src=da_sv_no-${task_type}
+  fi
 
-        PRED_FILE=${TB_DIR}/${tb_name}/${tbid}-ud-${data_type}.conllu
-        OUT_FILE=output/${model_type}/predicted/${tbid}-${task_type}.conllu
+  #== POS ===
+  if [ "${task_type}" == 'pos' ]; then
+    echo "predicting pos"
+    PREDICTOR='sentence-tagger'
 
-    # custom files the user has created
-    elif [ ${file_type} == 'user' ]
-      then echo "tagging user-created file with custom paths/names"
+    #=== Custom filepath ===
+    if [ "${file_type}" == 'user' ]
+      then echo "tagging user-created file with custom paths/name"
       
       # path to source udpipe segmented/tokenized file to predict
-      PRED_FILE=data/faroese/fao_wiki.apertium.fao-${lang}.udpipe.parsed.conllu  
-  
-      if [ ${model_type} == 'multiingual' ]
+      PRED_FILE=data/faroese/fao_wiki.apertium.fao-${lang}.udpipe.parsed.conllu
+
+      if [ "${model_type}" == 'multiingual' ]; then
         # change name to format expected by dataset reader
-        then cp ${PRED_FILE} data/faroese/${tbid}-udpipe.parsed.conllu
- 	    PRED_FILE=data/faroese/${tbid}-udpipe.parsed.conllu
+        cp ${PRED_FILE} data/faroese/${tbid}-udpipe.parsed.conllu
+        PRED_FILE=data/faroese/${tbid}-udpipe.parsed.conllu
       fi
-     
-  ### PARSE
-  elif [ ${task_type} == 'parse' ]
-    then echo "predicting parses"
+    fi
 
-    # parse <ud> or <user> files (a file the user has created)
-    if [ ${file_type} == 'ud']
-      then echo "parsing UD treebank"
-
-      # find the appropriate UD treebank
-      for filepath in ${TB_DIR}/*/${tbid}-ud-train.conllu; do
-        dir=`dirname $filepath`
-        tb_name=`basename $dir`
-
-        PRED_FILE=${TB_DIR}/${tb_name}/${tbid}-ud-${data_type}.conllu
-        OUT_FILE=output/${model_type}/predicted/${tbid}-${task_type}.conllu
-
-    # custom files the user has created
-    elif [ ${file_type} == 'user' ]
-      then echo "tagging user-created file with custom paths/names"
+  elif [ "${task_type}" == 'parse']; then
+    echo "predicting parse"
+    PREDICTOR=biaffine-dependency-parser-monolingual
+    
+    PRED_FILE=output/${model_type}/predicted/${tbid}-pos.conllu # AllenNLP tagged file
       
-      # path to source udpipe segmented/tokenized file to predict
-      #PRED_FILE=data/faroese/fao_wiki.apertium.fao-${lang}.udpipe.parsed.conllu # UDPipe tagged file  
-      PRED_FILE=output/${model_type}/predicted/${tbid}-pos.conllu # AllenNLP tagged file
-      
-      # file to write
-      OUT_FILE=output/${model_type}/predicted/fao_wiki.apertium.fao-${tbid}.allennlp.parsed.conllu
+    # file to write
+    OUT_FILE=output/${model_type}/predicted/fao_wiki.apertium.fao-${tbid}.allennlp.parsed.conllu
+fi   
 
-  
-
-  #========= predict step
-  allennlp predict output/${model_type}/source_models/${src}/model.tar.gz ${PRED_FILE} \
-       --output-file ${OUT_FILE} \
-       --predictor #TODO \
-       --include-package library \
-       --use-dataset-reader
+#=== Predict ===
+allennlp predict output/${model_type}/source_models/${src}/model.tar.gz ${PRED_FILE} \
+   --output-file ${OUT_FILE} \
+   --predictor ${PREDICTOR} \
+   --include-package library \
+   --use-dataset-reader
 
 done
 
-# if using files wihout annotations use: --overrides '{"dataset_reader": {"disable_dependencies": true}}'
-#--overrides '{"dataset_reader":{"languages":'${tbid}'}}' \  
