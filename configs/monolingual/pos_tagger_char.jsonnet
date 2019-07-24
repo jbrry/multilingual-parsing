@@ -1,11 +1,11 @@
 local word_embedding_dim = 100;
 local char_embedding_dim = 32;
-local embedding_dim = word_embedding_dim + char_embedding_dim;
-local hidden_dim = 200;
+local embedding_dim = word_embedding_dim + char_embedding_dim + char_embedding_dim;
+local hidden_dim = 400;
 local num_epochs = 50;
 local patience = 10;
 local batch_size = 32;
-local learning_rate = 0.01;
+local learning_rate = 0.001;
 
 {
   "dataset_reader":{
@@ -15,13 +15,14 @@ local learning_rate = 0.01;
         "type": "single_id" 
         },
         "token_characters": { 
-        "type": "characters" 
+        "type": "characters",
+        "min_padding_length": 3
         }
       }
     },
     "train_data_path": std.extVar("TRAIN_DATA_PATH"),
-    "validation_data_path":  std.extVar("DEV_DATA_PATH"),
-    "test_data_path":  std.extVar("TEST_DATA_PATH"),
+    "validation_data_path": std.extVar("DEV_DATA_PATH"),
+    "test_data_path": std.extVar("TEST_DATA_PATH"),
     "model": {
       "type": "pos_tagger_monolingual",
       "text_field_embedder": {
@@ -38,9 +39,11 @@ local learning_rate = 0.01;
              "encoder": {
                "type": "lstm",
                "input_size": char_embedding_dim,
-               "hidden_size": char_embedding_dim
-               }
+               "hidden_size": char_embedding_dim,
+               "num_layers": 2,
+               "bidirectional": true
              }
+           }
         },
       },
       "encoder": {
@@ -72,12 +75,12 @@ local learning_rate = 0.01;
     "trainer": {
       "num_epochs": num_epochs,
       "grad_norm": 5.0,
-      "patience": 50,
+      "patience": 10,
       "cuda_device": 0,
       "validation_metric": "+accuracy",
       "optimizer": {
         "type": "dense_sparse_adam",
-        "betas": [0.9, 0.9]
+        "betas": [0.9, 0.999]
       }
     }
   }
