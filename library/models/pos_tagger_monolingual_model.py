@@ -19,7 +19,7 @@ from allennlp.training.metrics import CategoricalAccuracy
 @Model.register("pos_tagger_monolingual")
 class PosTaggerMonolingual(Model):
     """
-    This ``SimpleTagger`` simply encodes a sequence of text with a stacked ``Seq2SeqEncoder``, then
+    This ``PosTaggerMonolingual`` simply encodes a sequence of text with a stacked ``Seq2SeqEncoder``, then
     predicts a tag for each token in the sequence.
     Parameters
     ----------
@@ -30,7 +30,7 @@ class PosTaggerMonolingual(Model):
     encoder : ``Seq2SeqEncoder``
         The encoder (with its own internal stacking) that we will use in between embedding tokens
         and predicting output tags.
-    label_namespace : ``str``, optional (default=``labels``)
+    label_namespace : ``str``, optional (default=``pos``)
         The labels (pos tags) we are predicting.
     initializer : ``InitializerApplicator``, optional (default=``InitializerApplicator()``)
         Used to initialize the model parameters.
@@ -43,7 +43,7 @@ class PosTaggerMonolingual(Model):
                  encoder: Seq2SeqEncoder,
                  dropout: float = 0.0,
                  input_dropout: float = 0.0,
-                 label_namespace: str = "labels",
+                 label_namespace: str = "pos",
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super(PosTaggerMonolingual, self).__init__(vocab, regularizer)
@@ -69,14 +69,14 @@ class PosTaggerMonolingual(Model):
 
     @overrides
     def forward(self,  # type: ignore
-                tokens: Dict[str, torch.LongTensor],
-                tags: torch.LongTensor = None,
+                words: Dict[str, torch.LongTensor],
+                pos_tags: torch.LongTensor = None,
                 metadata: List[Dict[str, Any]] = None) -> Dict[str, torch.Tensor]:
         # pylint: disable=arguments-differ
         """
         Parameters
         ----------
-        tokens : Dict[str, torch.LongTensor], required
+        words : Dict[str, torch.LongTensor], required
             The output of ``TextField.as_array()``, which should typically be passed directly to a
             ``TextFieldEmbedder``. This output is a dictionary mapping keys to ``TokenIndexer``
             tensors.  At its most basic, using a ``SingleIdTokenIndexer`` this is: ``{"tokens":
@@ -85,7 +85,7 @@ class PosTaggerMonolingual(Model):
             sequence.  The dictionary is designed to be passed directly to a ``TextFieldEmbedder``,
             which knows how to combine different word representations into a single vector per
             token in your input.
-        tags : torch.LongTensor, optional (default = None)
+        pos_tags : torch.LongTensor, optional (default = None)
             A torch tensor representing the sequence of integer gold class labels of shape
             ``(batch_size, num_tokens)``.
         metadata : ``List[Dict[str, Any]]``, optional, (default = None)
@@ -102,9 +102,9 @@ class PosTaggerMonolingual(Model):
         loss : torch.FloatTensor, optional
             A scalar loss to be optimised.
         """
-        embedded_text_input = self.text_field_embedder(tokens)
+        embedded_text_input = self.text_field_embedder(words)
         batch_size, sequence_length, _ = embedded_text_input.size()
-        mask = get_text_field_mask(tokens)
+        mask = get_text_field_mask(words)
         encoded_text = self.encoder(embedded_text_input, mask)
 
         logits = self.tag_projection_layer(encoded_text)
@@ -115,10 +115,10 @@ class PosTaggerMonolingual(Model):
 
         output_dict = {"logits": logits, "class_probabilities": class_probabilities}
 
-        if tags is not None:
-            loss = sequence_cross_entropy_with_logits(logits, tags, mask)
+        if pos_tags is not None:
+            loss = sequence_cross_entropy_with_logits(logits, pos_tags, mask)
             for metric in self.metrics.values():
-                metric(logits, tags, mask.float())
+                metric(logits, pos_tags, mask.float())
             output_dict["loss"] = loss
 
         if metadata is not None:
@@ -140,10 +140,10 @@ class PosTaggerMonolingual(Model):
         all_tags = []
         for predictions in predictions_list:
             argmax_indices = numpy.argmax(predictions, axis=-1)
-            tags = [self.vocab.get_token_from_index(x, namespace="labels")
+            pos_tags = [self.vocab.get_token_from_index(x, namespace="pos")
                     for x in argmax_indices]
-            all_tags.append(tags)
-        output_dict['tags'] = all_tags
+            all_tags.append(pos_tags)
+        output_dict['pos'] = all_tags
         return output_dict
 
     @overrides
