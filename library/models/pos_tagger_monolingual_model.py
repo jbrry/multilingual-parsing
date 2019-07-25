@@ -71,6 +71,8 @@ class PosTaggerMonolingual(Model):
     def forward(self,  # type: ignore
                 words: Dict[str, torch.LongTensor],
                 pos_tags: torch.LongTensor = None,
+                head_tags: torch.LongTensor = None,
+                head_indices: torch.LongTensor = None,
                 metadata: List[Dict[str, Any]] = None) -> Dict[str, torch.Tensor]:
         # pylint: disable=arguments-differ
         """
@@ -123,6 +125,11 @@ class PosTaggerMonolingual(Model):
 
         if metadata is not None:
             output_dict["words"] = [x["words"] for x in metadata]
+
+            # include ids, heads and tags in dictionary for next task/evaluation
+            output_dict["ids"] = [x["ids"] for x in metadata if "ids" in x]
+            output_dict["predicted_dependencies"] = [x["head_tags"] for x in metadata] 
+            output_dict["predicted_heads"] = [x["head_indices"] for x in metadata] 
         return output_dict
 
     @overrides

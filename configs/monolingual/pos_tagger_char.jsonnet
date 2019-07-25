@@ -2,7 +2,7 @@ local word_embedding_dim = 100;
 local char_embedding_dim = 32;
 local embedding_dim = word_embedding_dim + char_embedding_dim + char_embedding_dim;
 local hidden_dim = 400;
-local num_epochs = 5;
+local num_epochs = 50;
 local patience = 5;
 local batch_size = 32;
 local learning_rate = 0.001;
@@ -10,7 +10,6 @@ local learning_rate = 0.001;
 {
   "dataset_reader":{
     "type":"universal_dependencies_monolingual",
-    "disable_dependencies": true,
       "token_indexers": {
         "tokens": { 
         "type": "single_id" 

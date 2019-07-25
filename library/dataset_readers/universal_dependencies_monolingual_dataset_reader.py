@@ -37,20 +37,15 @@ class UniversalDependenciesDatasetReaderMonolingual(DatasetReader):
     tokenizer : ``Tokenizer``, optional, default = None
         A tokenizer to use to split the text. This is useful when the tokens that you pass
         into the model need to have some particular attribute. Typically it is not necessary.
-    disable_dependencies : ``bool``, optional (default = False)
-        Do not add dependencies to Instance, e.g. for cases where we do not
-        have head/head_tag annotations or for POS-tagging.
     """
     def __init__(self,
                  token_indexers: Dict[str, TokenIndexer] = None,
                  use_language_specific_pos: bool = False,
-                 disable_dependencies: bool = False,
                  tokenizer: Tokenizer = None,
                  lazy: bool = False) -> None:
         super().__init__(lazy)
         self._token_indexers = token_indexers or {'tokens': SingleIdTokenIndexer()}
         self.use_language_specific_pos = use_language_specific_pos
-        self.disable_dependencies = disable_dependencies
         self.tokenizer = tokenizer
 
     @overrides
@@ -69,26 +64,24 @@ class UniversalDependenciesDatasetReaderMonolingual(DatasetReader):
                 # and are replaced with None by the conllu python library.
                 annotation = [x for x in annotation if x["id"] is not None]
                 
+                ids = [x["id"] for x in annotation]
                 words = [x["form"] for x in annotation]
                 if self.use_language_specific_pos:
                     pos_tags = [x["xpostag"] for x in annotation]
                 else:
                     pos_tags = [x["upostag"] for x in annotation]
 
-                if not self.disable_dependencies:
-                    heads = [x["head"] for x in annotation]
-                    tags = [x["deprel"] for x in annotation]
-                    dependencies = list(zip(tags, heads))
-                else:
-                    dependencies = None
+                heads = [x["head"] for x in annotation]
+                tags = [x["deprel"] for x in annotation]
 
-                yield self.text_to_instance(words, pos_tags, dependencies)
+                yield self.text_to_instance(words, pos_tags, list(zip(tags, heads)), ids)
 
     @overrides
     def text_to_instance(self,  # type: ignore
                          words: List[str],
                          upos_tags: List[str],
-                         dependencies: List[Tuple[str, int]] = None) -> Instance:
+                         dependencies: List[Tuple[str, int]] = None,
+                         ids: List[str] = None) -> Instance:
         # pylint: disable=arguments-differ
         """
         Parameters
@@ -111,9 +104,6 @@ class UniversalDependenciesDatasetReaderMonolingual(DatasetReader):
         tokens = TextField([Token(w) for w in words], self._token_indexers)
         fields["words"] = tokens
         fields["pos_tags"] = SequenceLabelField(upos_tags, tokens, label_namespace="pos")
-       
-        if self.disable_dependencies:
-            dependencies = None
 
         if dependencies is not None:
             # We don't want to expand the label namespace with an additional dummy token, so we'll
@@ -124,6 +114,16 @@ class UniversalDependenciesDatasetReaderMonolingual(DatasetReader):
             fields["head_indices"] = SequenceLabelField([int(x[1]) for x in dependencies],
                                                         tokens,
                                                         label_namespace="head_index_tags")
+        
+        # append heads and deps to metadata for next task/evaluation script
+        head_tags = [x[0] for x in dependencies]
+        head_indices = [int(x[1]) for x in dependencies]
 
-        fields["metadata"] = MetadataField({"words": words, "pos": upos_tags})
+        fields["metadata"] = MetadataField({
+        "words": words,
+        "pos": upos_tags,
+        "head_tags": head_tags,
+        "head_indices": head_indices,
+        "ids": ids})
+        
         return Instance(fields)

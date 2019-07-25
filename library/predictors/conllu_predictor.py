@@ -72,15 +72,12 @@ class ConlluPredictor(Predictor):
 
         word_count = len([word for word in outputs["words"]])
         lines = zip(*[outputs[k] if k in outputs else ["_"] * word_count
-                      for k in ["words", "lemmas", "pos", "xpos", "feats",
+                      for k in ["ids", "words", "lemmas", "pos", "xpos", "feats",
                                 "predicted_heads", "predicted_dependencies"]])
 
         output_lines = []
         for i, line in enumerate(lines):
-            token_index = str(i+1)
             line = [str(l) for l in line]
-            # append token id to first row
-            line = [token_index] + line
 
             row = "\t".join(line) + "".join(["\t_"] * 2)
             output_lines.append(row)
