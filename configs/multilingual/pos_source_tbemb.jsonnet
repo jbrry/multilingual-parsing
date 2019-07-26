@@ -1,9 +1,8 @@
-local word_embedding_dim = 100;
-local char_embedding_dim = 32;
-local pos_embedding_dim = 50;
+local word_embedding_dim = 50;
+local char_embedding_dim = 16;
 local tb_embedding_dim = 12;
-local embedding_dim = word_embedding_dim + pos_embedding_dim + tb_embedding_dim + char_embedding_dim + char_embedding_dim;
-local hidden_dim = 400;
+local embedding_dim = word_embedding_dim + tb_embedding_dim + char_embedding_dim + char_embedding_dim;
+local hidden_dim = 200;
 local num_epochs = 2;
 local patience = 2;
 local batch_size = 32;
@@ -13,18 +12,18 @@ local learning_rate = 0.001;
   "dataset_reader":{
     "type":"universal_dependencies_tbemb",
     "languages": ["da_ddt", "sv_talbanken"],
-	"alternate": true,
-	"instances_per_file": 32,
-	"is_first_pass_for_vocab": true,
-	"lazy": true,
+	  "alternate": true,
+	  "instances_per_file": 32,
+	  "is_first_pass_for_vocab": true,
+	  "lazy": true,
       "token_indexers": {
         "tokens": { 
         "type": "single_id" 
-        },
-        "token_characters": { 
+      },
+      "token_characters": { 
         "type": "characters",
         "min_padding_length": 3
-        }
+      }
    },
    "use_language_specific_pos": false,
    "use_treebank_embedding": true,
@@ -35,9 +34,9 @@ local learning_rate = 0.001;
      "sorting_keys": [["words", "num_tokens"]],
      "instances_per_epoch": 32000
    },
-    "train_data_path": "/home/jbarry/ud-parsing/ud-treebanks-v2.2/**/*-ud-train.conllu",
-    "validation_data_path": "/home/jbarry/ud-parsing/ud-treebanks-v2.2/**/*-ud-dev.conllu",
-//	"test_data_path": "/home/jbarry/ud-parsing/ud-treebanks-v2.2/**/*-ud-test.conllu",
+   "train_data_path": "/home/jbarry/ud-parsing/ud-treebanks-v2.2/**/*-ud-train.conllu",
+   "validation_data_path": "/home/jbarry/ud-parsing/ud-treebanks-v2.2/**/*-ud-dev.conllu",
+// "test_data_path": "/home/jbarry/ud-parsing/ud-treebanks-v2.2/**/*-ud-test.conllu",
     "model": {
       "type": "pos_tagger_tbemb",
       "text_field_embedder": {
@@ -61,8 +60,8 @@ local learning_rate = 0.001;
            }
         },
       },
-      "treebank_embedding":{
-        "embedding_dim": 12,
+      "treebank_embedding": {
+        "embedding_dim": tb_embedding_dim,
         "vocab_namespace": "tbids"
       },
       "encoder": {
@@ -77,6 +76,7 @@ local learning_rate = 0.001;
       "da_ddt",
       "sv_talbanken"
       ],
+      "use_treebank_embedding": true,
       "dropout": 0.33,
       "input_dropout": 0.33,
       "initializer": [
@@ -89,7 +89,7 @@ local learning_rate = 0.001;
         [".*bias_ih.*", {"type": "zero"}],
         [".*bias_hh.*", {"type": "lstm_hidden_bias"}]]
     },
-    "evaluate_on_test": true,
+    "evaluate_on_test": false,
     "trainer": {
       "num_epochs": num_epochs,
       "grad_norm": 5.0,

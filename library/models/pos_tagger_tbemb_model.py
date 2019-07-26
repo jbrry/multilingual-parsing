@@ -66,7 +66,7 @@ class PosTaggerTbemb(Model):
                  input_dropout: float = 0.0,
                  label_namespace: str = "pos",
                  treebank_embedding: Embedding = None,
-                 use_treebank_embedding: bool = False,
+                 use_treebank_embedding: bool = True,
                  langs_for_early_stop: List[str] = None,
                  initializer: InitializerApplicator = InitializerApplicator(),                 
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
@@ -76,17 +76,37 @@ class PosTaggerTbemb(Model):
         self.text_field_embedder = text_field_embedder
         self.num_classes = self.vocab.get_vocab_size(label_namespace)
         self.encoder = encoder
+        encoder_dim = encoder.get_output_dim()
+
         self._dropout = InputVariationalDropout(dropout)
+        self._input_dropout = Dropout(input_dropout)
         self._langs_for_early_stop = langs_for_early_stop or []
+        self._treebank_embedding = treebank_embedding or None
         self._use_treebank_embedding = use_treebank_embedding
+        
         self._lang_accuracy_scores: Dict[
                 str, CategoricalAccuracy] = defaultdict(CategoricalAccuracy)
-
+        
         self.tag_projection_layer = TimeDistributed(Linear(self.encoder.get_output_dim(),
                                                                            self.num_classes))
 
-#        check_dimensions_match(text_field_embedder.get_output_dim(), encoder.get_input_dim(),
-#                                       "text field embedding dim", "encoder input dim")
+
+        representation_dim = text_field_embedder.get_output_dim()
+
+        if treebank_embedding is not None:
+            representation_dim += treebank_embedding.get_output_dim()
+
+        check_dimensions_match(representation_dim, encoder.get_input_dim(),
+                                       "text field embedding dim", "encoder input dim")
+
+        if self.use_treebank_embedding:
+            tbids = self.vocab.get_token_to_index_vocabulary("tbids")
+            tbid_indices = {tb: index for tb, index in tbids.items()}
+            self._tbids = set(tbid_indices.values())
+            logger.info(f"Found TBIDs corresponding to the following treebanks : {tbid_indices}. "
+                        "Embedding these as additional features.")
+
+		self._accuracy_scores = CategoricalAccuracy()
 
         self.metrics = {
                 "accuracy": CategoricalAccuracy(),
