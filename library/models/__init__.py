@@ -1,4 +1,5 @@
 from library.models.biaffine_dependency_parser_monolingual_model import BiaffineDependencyParserMonolingual
 from library.models.biaffine_dependency_parser_tbemb_model import BiaffineDependencyParserTbemb
 from library.models.pos_tagger_monolingual_model import PosTaggerMonolingual
+from library.models.pos_tagger_tbemb_model import PosTaggerTbemb
 

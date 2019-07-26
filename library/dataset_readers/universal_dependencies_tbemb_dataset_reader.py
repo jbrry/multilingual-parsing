@@ -116,7 +116,8 @@ class UniversalDependenciesTbembDatasetReader(DatasetReader):
                 # We filter by None here as elided words have a non-integer word id,
                 # and are replaced with None by the conllu python library.
                 annotation = [x for x in annotation if x["id"] is not None]
-
+                
+                ids = [x["id"] for x in annotation]
                 heads = [x["head"] for x in annotation]
                 tags = [x["deprel"] for x in annotation]
                 words = [x["form"] for x in annotation]
@@ -129,9 +130,9 @@ class UniversalDependenciesTbembDatasetReader(DatasetReader):
                 # append the lang/treebank tag as a sequence label field
                 if self._use_treebank_embedding:
                     treebank_ids = [lang for x in words]
-                    yield self.text_to_instance(lang, words, pos_tags, treebank_ids, list(zip(tags, heads)))
+                    yield self.text_to_instance(lang, words, pos_tags, treebank_ids, list(zip(tags, heads)), ids)
                 else:
-                    yield self.text_to_instance(lang, words, pos_tags, list(zip(tags, heads)))
+                    yield self.text_to_instance(lang, words, pos_tags, list(zip(tags, heads)), ids)
 
     @overrides
     def _read(self, file_path: str):
@@ -166,7 +167,8 @@ class UniversalDependenciesTbembDatasetReader(DatasetReader):
                          words: List[str],
                          upos_tags: List[str],
                          treebank_ids: List[str],
-                         dependencies: List[Tuple[str, int]] = None) -> Instance:
+                         dependencies: List[Tuple[str, int]] = None,
+                         ids: List[str] = None) -> Instance:
         # pylint: disable=arguments-differ
         """
         Parameters
@@ -207,6 +209,18 @@ class UniversalDependenciesTbembDatasetReader(DatasetReader):
             fields["head_indices"] = SequenceLabelField([int(x[1]) for x in dependencies],
                                                         tokens,
                                                         label_namespace="head_index_tags")
+        
+        # append heads and deps to metadata for next task/evaluation script
+        head_tags = [x[0] for x in dependencies]
+        head_indices = [int(x[1]) for x in dependencies]
 
-        fields["metadata"] = MetadataField({"words": words, "pos": upos_tags, "lang": lang}) # add tbid to metadata?
+
+        fields["metadata"] = MetadataField({
+        "words": words,
+        "pos": upos_tags,
+        "lang": lang,
+        "head_tags": head_tags,
+        "head_indices": head_indices,
+        "ids": ids})
+
         return Instance(fields)
