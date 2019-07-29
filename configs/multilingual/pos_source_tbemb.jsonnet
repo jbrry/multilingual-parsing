@@ -1,17 +1,18 @@
-local word_embedding_dim = 50;
-local char_embedding_dim = 16;
+local word_embedding_dim = 100;
+local char_embedding_dim = 32;
 local tb_embedding_dim = 12;
 local embedding_dim = word_embedding_dim + tb_embedding_dim + char_embedding_dim + char_embedding_dim;
-local hidden_dim = 200;
-local num_epochs = 2;
-local patience = 2;
+local hidden_dim = 400;
+local num_epochs = 50;
+local patience = 5;
 local batch_size = 32;
 local learning_rate = 0.001;
+local cuda_device = 0;
 
 {
   "dataset_reader":{
     "type":"universal_dependencies_tbemb",
-    "languages": ["da_ddt", "sv_talbanken"],
+    "languages": ["da_ddt", "sv_talbanken", "no_nynorsk", "no_bokmaal"],
 	  "alternate": true,
 	  "instances_per_file": 32,
 	  "is_first_pass_for_vocab": true,
@@ -36,7 +37,7 @@ local learning_rate = 0.001;
    },
    "train_data_path": "/home/jbarry/ud-parsing/ud-treebanks-v2.2/**/*-ud-train.conllu",
    "validation_data_path": "/home/jbarry/ud-parsing/ud-treebanks-v2.2/**/*-ud-dev.conllu",
-// "test_data_path": "/home/jbarry/ud-parsing/ud-treebanks-v2.2/**/*-ud-test.conllu",
+   "test_data_path": "/home/jbarry/ud-parsing/ud-treebanks-v2.2/**/*-ud-test.conllu",
     "model": {
       "type": "pos_tagger_tbemb",
       "text_field_embedder": {
@@ -74,7 +75,9 @@ local learning_rate = 0.001;
       },
       "langs_for_early_stop": [
       "da_ddt",
-      "sv_talbanken"
+      "sv_talbanken", 
+      "no_nynorsk", 
+      "no_bokmaal"
       ],
       "use_treebank_embedding": true,
       "dropout": 0.33,
@@ -89,14 +92,14 @@ local learning_rate = 0.001;
         [".*bias_ih.*", {"type": "zero"}],
         [".*bias_hh.*", {"type": "lstm_hidden_bias"}]]
     },
-    "evaluate_on_test": false,
+    "evaluate_on_test": true,
     "trainer": {
       "num_epochs": num_epochs,
       "grad_norm": 5.0,
       "patience": patience,
       "num_serialized_models_to_keep": 3,
-      "cuda_device": 0,
-      "validation_metric": "+accuracy",
+      "cuda_device": cuda_device,
+      "validation_metric": "+accuracy_AVG",
       "optimizer": {
         "type": "dense_sparse_adam",
         "betas": [0.9, 0.999]
@@ -104,7 +107,7 @@ local learning_rate = 0.001;
     },
    "validation_dataset_reader": {
      "type": "universal_dependencies_tbemb",
-     "languages": ["da_ddt", "sv_talbanken"],
+     "languages": ["da_ddt", "sv_talbanken", "no_nynorsk", "no_bokmaal"],
      "alternate": false,
       "lazy": true,
       "token_indexers": {

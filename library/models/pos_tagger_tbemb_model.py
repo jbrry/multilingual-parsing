@@ -1,10 +1,11 @@
 from typing import Dict, Optional, Any, List
 import logging
 
-import numpy
 from collections import defaultdict
 from overrides import overrides
 import torch
+import numpy
+
 from torch.nn.modules.linear import Linear
 import torch.nn.functional as F
 from torch.nn.modules import Dropout
@@ -44,7 +45,7 @@ class PosTaggerTbemb(Model):
     label_namespace : ``str``, optional (default=``pos``)
         The labels (pos tags) we are predicting.
     treebank_embedding : ``Embedding``, optional.
-        Used to embed the ``treebank_ids`` ``SequenceLabelField`` we get as input to the model.    
+        Used to embed the ``treebank_ids`` ``SequenceLabelField`` we get as input to the model.  
     langs_for_early_stop : ``List[str]``, optional, (default = [])
         Which languages to include in the averaged metrics
         (that could be used for early stopping).
@@ -84,6 +85,8 @@ class PosTaggerTbemb(Model):
         self._lang_accuracy_scores: Dict[
                 str, CategoricalAccuracy] = defaultdict(CategoricalAccuracy)
         
+
+        print("LANG ACCURACY SCORES", self._lang_accuracy_scores)
         self.tag_projection_layer = TimeDistributed(Linear(self.encoder.get_output_dim(),
                                                                            self.num_classes))
 
@@ -102,12 +105,16 @@ class PosTaggerTbemb(Model):
             logger.info(f"Found TBIDs corresponding to the following treebanks : {tbid_indices}. "
                         "Embedding these as additional features.")
 
-        self._accuracy_scores = CategoricalAccuracy()
+        #self._accuracy_scores = CategoricalAccuracy() #TODO do we still need this?
 
-        self.metrics = {
-                "accuracy": CategoricalAccuracy(),
-                "accuracy3": CategoricalAccuracy(top_k=3)
-        }
+#        self.metrics = {
+#                "accuracy": CategoricalAccuracy(),
+#                "accuracy3": CategoricalAccuracy(top_k=3)
+#        }
+
+#        self.metrics = {
+#                "accuracy": CategoricalAccuracy()
+#        }
 
         initializer(self)
 
@@ -189,14 +196,13 @@ class PosTaggerTbemb(Model):
 
         if pos_tags is not None:
             loss = sequence_cross_entropy_with_logits(logits, pos_tags, mask)
-            for metric in self.metrics.values():
-                metric(logits, pos_tags, mask.float())
+#            for metric in self.metrics.values():
+#                metric(logits, pos_tags, mask.float())
             output_dict["loss"] = loss
 
-            # TODO
             self._lang_accuracy_scores[batch_lang](logits,
                                                    pos_tags,
-                                                   mask)
+                                                   mask.float())
             
         if metadata is not None:
             output_dict["words"] = [x["words"] for x in metadata]
@@ -205,6 +211,7 @@ class PosTaggerTbemb(Model):
             output_dict["ids"] = [x["ids"] for x in metadata if "ids" in x]
             output_dict["predicted_dependencies"] = [x["head_tags"] for x in metadata]
             output_dict["predicted_heads"] = [x["head_indices"] for x in metadata]
+        
         return output_dict
 
     @overrides
@@ -234,24 +241,26 @@ class PosTaggerTbemb(Model):
 
         metrics = {}
         all_accuracy = []
-        all_accuracy3 = []
-        for lang, scores in self._lang_accuracy_scores.items():
-            lang_metrics = scores.get_metric(reset)
+        #all_accuracy3 = []
+        lang_accs = {}
 
-            for key in lang_metrics.keys():
-                # Store only those metrics.
-                if key in ['accuracy', 'accuracy3', 'loss']:
-                    metrics["{}_{}".format(key, lang)] = lang_metrics[key]
+        metric_keys = ['accuracy']
+
+        for lang, scores in self._lang_accuracy_scores.items():
+            
+            score = scores.get_metric(reset) # what does this look like: a float value
+
+            for key in metric_keys:
+                metrics["{}_{}".format(key, lang)] = score
 
             # Include in the average only languages that should count for early stopping.
             if lang in self._langs_for_early_stop:
                 all_accuracy.append(metrics["accuracy_{}".format(lang)])
-                all_accuracy3.append(metrics["accuracy3_{}".format(lang)])
+                #all_accuracy3.append(metrics["accuracy3_{}".format(lang)])
 
         if self._langs_for_early_stop:
             metrics.update({
-                    "accuracy_AVG": numpy.mean(all_accuracy),
-                    "accuracy3_AVG": numpy.mean(all_accuracy3)
+                    "accuracy_AVG": numpy.mean(all_accuracy)
             })
 
         return metrics
