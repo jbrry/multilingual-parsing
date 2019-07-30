@@ -10,8 +10,9 @@ TIMESTAMP=`date "+%Y%m%d-%H%M%S"`
 if [ ${model_type} == 'monolingual' ]
    then echo "training monolingual model(s)..."
 
-   for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
-      for filepath in ${TB_DIR}/*/${tbid}-ud-train.conllu; do 
+   for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal ; do
+   #for tbid in en_lines ; do
+     for filepath in ${TB_DIR}/*/${tbid}-ud-train.conllu; do 
   
       dir=`dirname $filepath`        # e.g. /home/james/ud_folder/ud-treebanks-v2.2/UD_Afrikaans-AfriBooms
       tb_name=`basename $dir`        # e.g. UD_Afrikaans-AfriBooms
@@ -27,6 +28,10 @@ if [ ${model_type} == 'monolingual' ]
   done
 
 elif [ ${model_type} == 'multilingual' ]
-  then echo "training multilingual model... Not Implemented"
+  then echo "training multilingual model..."
+
+  # files are found using the config file.
+  allennlp train configs/multilingual/pos_source_tbemb.jsonnet -s output/multilingual/source_models/da_sv_no-pos-$TIMESTAMP \
+  --include-package library
 
 fi
