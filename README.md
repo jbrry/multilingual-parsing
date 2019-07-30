@@ -28,7 +28,7 @@ Activate the Conda environment:
 ```bash
 source activate multilingual_parsing
 ```
-This project uses some new AllenNLP features which are not available in the official 0.8.4 release. As such, we will build the 0.8.5-unreleased version from the `master` branch on GitHub. If there are any problems try updating pip setuptoops and wheel as mentioned [here](https://packaging.python.org/tutorials/installing-packages/).
+This project uses some new AllenNLP features which are not available in the official 0.8.4 release. As such, we will build the 0.8.5-unreleased version from the `master` branch on GitHub. If there are any problems try updating pip, setuptools and wheel as mentioned [here](https://packaging.python.org/tutorials/installing-packages/).
 
 ```bash
 cd
@@ -40,6 +40,8 @@ pip install --editable .
 Make the `library` available in `$PYTHONPATH`. From the `multilingual_parsing` directory:
 
 ```bash
+cd /path/to/multilingual_parsing
+
 export PYTHONPATH="$PWD/library"
 
 # or permanently;
@@ -48,7 +50,7 @@ export PYTHONPATH=/path/to/multilingual_parsing/library
 ```
 
 ## Obtain data
-You will need to obtain the original Faroese data for these experiments please. #TODO add this to a data section.
+You will need to obtain the original Faroese data for these experiments please.
 
 1.  Clone the original repository to somewhere in your file system, e.g. in your home directory.
     ```bash
@@ -67,6 +69,17 @@ This should create a directory structure `multilingual-parsing/data/`.
     ```bash
     ./scripts/get_ud_treebank.sh
     ```
+
+## Create silver training/ development sets
+We follow the same process to develop datasets with [automatically predicted pos-labels](http://universaldependencies.org/conll18/baseline.html) as the CoNLL 2018 shared task. That is, we perform jack-knifing on ther training set to predict pos-tags. Pos-tags on the development set are predicted with a model trained on the gold-standard training set.
+
+```bash
+./scripts/create_k_folds.sh
+
+./scripts/train_with_cross_val.sh
+
+#TODO predict these files.
+```
 
 ## Train source models
 1.  Train a source model on source treebanks. The `model_type` argument supplied can be either `monolingual` or `multilingual` and determines whether to use a monolingual or multilingual model accordingly.
