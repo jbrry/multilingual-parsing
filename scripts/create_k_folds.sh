@@ -4,7 +4,7 @@ TB_DIR='data/ud-treebanks-v2.2'
 TMP_DIR='data/tmp'
 OUT_DIR='data/ud-treebanks-v2.2-crossfold-tags'
 
-mkdir -p ${TMP_DIR} ${TMP_DIR} ${OUT_DIR}
+mkdir -p ${TMP_DIR} ${OUT_DIR}
 
 TIMESTAMP=`date "+%Y%m%d-%H%M%S"` 
 
