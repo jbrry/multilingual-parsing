@@ -85,8 +85,6 @@ class PosTaggerTbemb(Model):
         self._lang_accuracy_scores: Dict[
                 str, CategoricalAccuracy] = defaultdict(CategoricalAccuracy)
         
-
-        print("LANG ACCURACY SCORES", self._lang_accuracy_scores)
         self.tag_projection_layer = TimeDistributed(Linear(self.encoder.get_output_dim(),
                                                                            self.num_classes))
 
@@ -104,17 +102,6 @@ class PosTaggerTbemb(Model):
             self._tbids = set(tbid_indices.values())
             logger.info(f"Found TBIDs corresponding to the following treebanks : {tbid_indices}. "
                         "Embedding these as additional features.")
-
-        #self._accuracy_scores = CategoricalAccuracy() #TODO do we still need this?
-
-#        self.metrics = {
-#                "accuracy": CategoricalAccuracy(),
-#                "accuracy3": CategoricalAccuracy(top_k=3)
-#        }
-
-#        self.metrics = {
-#                "accuracy": CategoricalAccuracy()
-#        }
 
         initializer(self)
 
@@ -196,13 +183,13 @@ class PosTaggerTbemb(Model):
 
         if pos_tags is not None:
             loss = sequence_cross_entropy_with_logits(logits, pos_tags, mask)
-#            for metric in self.metrics.values():
-#                metric(logits, pos_tags, mask.float())
-            output_dict["loss"] = loss
-
             self._lang_accuracy_scores[batch_lang](logits,
                                                    pos_tags,
                                                    mask.float())
+
+            output_dict["loss"] = loss
+
+
             
         if metadata is not None:
             output_dict["words"] = [x["words"] for x in metadata]
@@ -241,7 +228,6 @@ class PosTaggerTbemb(Model):
 
         metrics = {}
         all_accuracy = []
-        #all_accuracy3 = []
         lang_accs = {}
 
         metric_keys = ['accuracy']
