@@ -8,6 +8,8 @@ GLD_DIR='data/ud-treebanks-v2.2'
 TMP_DIR='data/tmp'
 TB_DIR='data/ud-treebanks-v2.2-crossfold-tags'
 
+EMB_DIR=${HOME}/embeddings
+
 TIMESTAMP=`date "+%Y%m%d-%H%M%S"` 
 
 if [ ${model_type} == 'monolingual' ]
@@ -23,6 +25,13 @@ if [ ${model_type} == 'monolingual' ]
               export TRAIN_DATA_PATH=${TMP_DIR}/${tb_name}/${tbid}-ud-train.conllu.split-${split}
               export DEV_DATA_PATH=${TMP_DIR}/${tb_name}/${tbid}-ud-dev.conllu.split-${split}
 
+              lang=$(echo ${tb_name} | awk -F "_" '{print $2}')
+              echo "processing language: ${lang}" 
+              VECS_DIR=${EMB_DIR}/${lang}
+              VECS_FILE=$(ls ${VECS_DIR}/*.vectors)
+              echo $VECS_FILE
+              export VECS_PATH=${VECS_FILE}
+
               allennlp train configs/monolingual/pos_tagger_char.jsonnet -s output/monolingual/cross_val/${tbid}-split-${split}-${TIMESTAMP} --include-package library
 
     done
@@ -36,3 +45,5 @@ elif [ ${model_type} == 'multilingual' ]
 
 #  allennlp train configs/multilingual/pos_source_tbemb.jsonnet -s output/multilingual/cross_val/da_sv_no-$TIMESTAMP \
 #    --include-package library
+fi
+
