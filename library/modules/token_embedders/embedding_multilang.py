@@ -6,6 +6,7 @@ import logging
 import warnings
 import itertools
 from typing import Dict, Optional, Tuple, Sequence, cast, IO, Iterator, Any, NamedTuple
+from collections import defaultdict
 
 from overrides import overrides
 import numpy
@@ -131,8 +132,8 @@ class EmbeddingMultilang(TokenEmbedder):
 
     @overrides
     def forward(self,
-                inputs,
-                lang: str):  # pylint: disable=arguments-differ
+                inputs):
+                #lang: str):  # pylint: disable=arguments-differ
         # inputs may have extra dimensions (batch_size, d1, ..., dn, sequence_length),
         # but embedding expects (batch_size, sequence_length), so pass inputs to
         # util.combine_initial_dims (which is a no-op if there are no extra dimensions).
@@ -296,18 +297,42 @@ class EmbeddingMultilang(TokenEmbedder):
         sparse = params.pop_bool('sparse', False)
         params.assert_empty(cls.__name__)
 
+
+        # Could have a multilang_embeddings with language keys and average the returned results?
+        #multilang_embeddings = defaultdict(lambda: {})
+        
+        # Create multilang_embeddings and update for each 'embeddings' dict we retrieve.
+        multilang_embeddings = {}
+
         if pretrained_files:
             for lang in pretrained_files.keys():
-                print(lang)
                 pretrained_file = pretrained_files[lang]
 
-                # If we're loading a saved model, we don't want to actually read a pre-trained
-                # embedding file - the embeddings will just be in our saved weights, and we might not
-                # have the original embedding file anymore, anyway.
-                weight = _read_pretrained_embeddings_file(pretrained_file,
+                logger.info("Searching embeddings for lang %s with file %s", lang, pretrained_file)
+
+
+                embeddings = _read_pretrained_embeddings_file(pretrained_file,
+                                                              embedding_dim,
+                                                              vocab,
+                                                              vocab_namespace)
+                
+                print("found {} embeddings".format(len(embeddings)))
+
+                multilang_embeddings.update(embeddings)
+                #multilang_embeddings[lang] = embeddings
+
+            print("size of multilang embeddings: ", len(multilang_embeddings))
+
+            
+            # If we're loading a saved model, we don't want to actually read a pre-trained
+            # embedding file - the embeddings will just be in our saved weights, and we might not
+            # have the original embedding file anymore, anyway.
+            weight = _create_weight_matrix(multilang_embeddings,
                                                       embedding_dim,
                                                       vocab,
                                                       vocab_namespace)
+
+            print("weight size", weight.size()) # weight size torch.Size([87551, 100])
         else:
             weight = None
 
@@ -395,7 +420,7 @@ def _read_embeddings_from_text_file(file_uri: str,
     The remainder of the docstring is identical to ``_read_pretrained_embeddings_file``.
     """
     tokens_to_keep = set(vocab.get_index_to_token_vocabulary(namespace).values())
-    vocab_size = vocab.get_vocab_size(namespace)
+ 
     embeddings = {}
 
     # First we read the embeddings from the file, only keeping vectors for the words we need.
@@ -425,6 +450,17 @@ def _read_embeddings_from_text_file(file_uri: str,
         raise ConfigurationError("No embeddings of correct dimension found; you probably "
                                  "misspecified your embedding_dim parameter, or didn't "
                                  "pre-populate your Vocabulary")
+
+    return embeddings
+
+
+def _create_weight_matrix(multilang_embeddings,
+                            embedding_dim: int,
+                            vocab: Vocabulary,
+                            namespace: str = "tokens") -> torch.FloatTensor:
+
+    vocab_size = vocab.get_vocab_size(namespace)
+    embeddings = multilang_embeddings
 
     all_embeddings = numpy.asarray(list(embeddings.values()))
     embeddings_mean = float(numpy.mean(all_embeddings))
