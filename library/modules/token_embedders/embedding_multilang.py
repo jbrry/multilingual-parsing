@@ -5,6 +5,7 @@ import re
 import logging
 import warnings
 import itertools
+import numpy as np
 from typing import Dict, Optional, Tuple, Sequence, cast, IO, Iterator, Any, NamedTuple
 from collections import defaultdict
 
@@ -300,7 +301,8 @@ class EmbeddingMultilang(TokenEmbedder):
 
         # Could have a multilang_embeddings with language keys and average the returned results?
         #multilang_embeddings = defaultdict(lambda: {})
-        
+        # value = np.mean(np.array([original_vector, new_vector]), axis=0)
+
         # Create multilang_embeddings and update for each 'embeddings' dict we retrieve.
         multilang_embeddings = {}
 
@@ -318,7 +320,18 @@ class EmbeddingMultilang(TokenEmbedder):
                 
                 print("found {} embeddings".format(len(embeddings)))
 
-                multilang_embeddings.update(embeddings)
+                # Rather than overwrite existing dictionary values, take the average of matching tokens' vectors.
+                for token, vector in embeddings.items():
+                    if token not in multilang_embeddings:
+                        multilang_embeddings[token] = vector
+                    else:
+                        original_vector = multilang_embeddings[token]
+                        # take the mean of the original and new vector
+                        mean_vector = np.mean(np.array([original_vector, vector]), axis=0)
+                        multilang_embeddings[token] = mean_vector
+
+
+                #multilang_embeddings.update(embeddings)
                 #multilang_embeddings[lang] = embeddings
 
             print("size of multilang embeddings: ", len(multilang_embeddings))

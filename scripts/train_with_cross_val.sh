@@ -15,15 +15,16 @@ TIMESTAMP=`date "+%Y%m%d-%H%M%S"`
 if [ ${model_type} == 'monolingual' ]
   then echo "training monolingual model(s)..."
 
-  for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
+  #for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
+  for tbid in no_nynorsk no_bokmaal; do # running again due to cluster reset
       for split in 0 1 2 3 4 5 6 7 8 9; do
           for filepath in ${GLD_DIR}/*/${tbid}-ud-train.conllu; do
               dir=`dirname $filepath`
               tb_name=`basename $dir`
 
               # v2.x
-              export TRAIN_DATA_PATH=${TMP_DIR}/${tb_name}/${tbid}-ud-train.conllu.split-${split}
-              export DEV_DATA_PATH=${TMP_DIR}/${tb_name}/${tbid}-ud-dev.conllu.split-${split}
+              export TRAIN_DATA_PATH=${GLD_DIR}/${tb_name}/${tbid}-ud-train.conllu.split-${split}
+              export DEV_DATA_PATH=${GLD_DIR}/${tb_name}/${tbid}-ud-dev.conllu.split-${split}
 
               lang=$(echo ${tb_name} | awk -F "_" '{print $2}')
               echo "processing language: ${lang}" 
@@ -32,7 +33,7 @@ if [ ${model_type} == 'monolingual' ]
               echo $VECS_FILE
               export VECS_PATH=${VECS_FILE}
 
-              allennlp train configs/monolingual/pos_tagger_char.jsonnet -s output/monolingual/cross_val/${tbid}-split-${split}-${TIMESTAMP} --include-package library
+              allennlp train configs/monolingual/pos_tagger_char.jsonnet -s output/monolingual/cross_val/${tbid}-split-${split}-20190804-221817 --include-package library
 
     done
   done
