@@ -1,12 +1,12 @@
 local word_embedding_dim = 100;
-local char_embedding_dim = 32;
+local char_embedding_dim = 64;
 local pos_embedding_dim = 50;
 local embedding_dim = word_embedding_dim + pos_embedding_dim + char_embedding_dim + char_embedding_dim;
 local hidden_dim = 400;
 local num_epochs = 50;
 local patience = 10;
-local batch_size = 128;
-local learning_rate = 0.1;
+local batch_size = 32;
+local learning_rate = 0.001;
 
 {
   "dataset_reader":{
@@ -29,7 +29,10 @@ local learning_rate = 0.1;
         "token_embedders": {
           "tokens": {
             "type": "embedding",
-            "embedding_dim": word_embedding_dim
+            "embedding_dim": word_embedding_dim,
+            "pretrained_file": std.extVar("VECS_PATH"),
+            "trainable": true,
+            "sparse": true
            },
            "token_characters": {
              "type": "character_encoding",

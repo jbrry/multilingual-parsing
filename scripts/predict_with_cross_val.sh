@@ -9,7 +9,7 @@ TMP_DIR='data/tmp'
 TB_DIR='data/ud-treebanks-v2.2-crossfold-tags'
 
 TIMESTAMP=`date "+%Y%m%d-%H%M%S"` 
-SUFFIX='-20190804-221817' # easier to just find the run you want rather than rename everything
+SUFFIX='-20190804-193214' # easier to just find the run you want rather than rename everything
 PREDICTOR='conllu-predictor'
 
 # clean and create tmp dir
@@ -57,7 +57,7 @@ elif [ ${data_type} == 'dev' ]
      
       PRED_FILE=${GLD_DIR}/${tb_name}/${tbid}-ud-dev.conllu
       
-      # put out file in predicted folder
+      # put output file in predicted folder
       OUT_FILE=${TB_DIR}/${tb_name}/${tbid}-ud-dev.conllu
 
       src=${tbid}-pos${SUFFIX}

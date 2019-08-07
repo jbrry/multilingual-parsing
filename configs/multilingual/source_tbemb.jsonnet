@@ -1,5 +1,5 @@
 local word_embedding_dim = 100;
-local char_embedding_dim = 32;
+local char_embedding_dim = 64;
 local pos_embedding_dim = 50;
 local tb_embedding_dim = 12;
 local embedding_dim = word_embedding_dim + pos_embedding_dim + tb_embedding_dim + char_embedding_dim + char_embedding_dim;
@@ -7,8 +7,8 @@ local hidden_dim = 400;
 local num_epochs = 50;
 local patience = 10;
 local batch_size = 32;
-local learning_rate = 0.1;
-
+local learning_rate = 0.001;
+local cuda_device = 0;
 {
   "dataset_reader":{
     "type":"universal_dependencies_tbemb",
@@ -35,15 +35,23 @@ local learning_rate = 0.1;
      "sorting_keys": [["words", "num_tokens"]],
      "instances_per_epoch": 32000
    },
-    "train_data_path": "/home/jbarry/ud-parsing/ud-treebanks-v2.2/**/*-ud-train.conllu",
-    "validation_data_path": "/home/jbarry/ud-parsing/ud-treebanks-v2.2/**/*-ud-dev.conllu",
+    "train_data_path": std.extVar("TRAIN_DATA_PATH"),
+    "validation_data_path": std.extVar("DEV_DATA_PATH"),
     "model": {
       "type": "biaffine_parser_tbemb",
       "text_field_embedder": {
         "token_embedders": {
           "tokens": {
-            "type": "embedding",
-            "embedding_dim": word_embedding_dim
+            "type": "embedding_multilang",
+            "embedding_dim": word_embedding_dim,
+            "pretrained_files": {
+                "da_ddt": "/home/jbarry/embeddings/Danish-DDT/da.vectors",
+                "sv_talbanken": "/home/jbarry/embeddings/Swedish-Talbanken/sv.vectors",
+                "no_nynorsk": "/home/jbarry/embeddings/Norwegian-Nynorsk/no_nynorsk.vectors",
+                "no_bokmaal": "/home/jbarry/embeddings/Norwegian-Bokmaal/no_bokmaal.vectors"
+            },
+            "trainable": true,
+            "sparse": true
            },
            "token_characters": {
              "type": "character_encoding",
@@ -104,7 +112,7 @@ local learning_rate = 0.1;
       "num_epochs": num_epochs,
       "grad_norm": 5.0,
       "patience": 10,
-      "cuda_device": 0,
+      "cuda_device": cuda_device,
       "validation_metric": "+LAS_AVG",
       "optimizer": {
         "type": "dense_sparse_adam",

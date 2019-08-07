@@ -15,9 +15,10 @@ test -z $3 && echo "Missing file type: 'ud' or 'user'"
 test -z $3 && exit 1
 file_type=$3
 
-test -z $4 && echo "Missing data type: 'dev' or 'test'"
-test -z $4 && exit 1
-data_type=$4
+if [ -n "$4" ]; then
+    # data type: 'dev' or 'test'
+    data_type=$4
+    fi
 
 echo "user specified task type: ${task_type} for a ${model_type} model"
 
@@ -48,7 +49,7 @@ for lang in dan swe nno nob; do
       tb_name=`basename $dir`
 
       PRED_FILE=${TB_DIR}/${tb_name}/${tbid}-ud-${data_type}.conllu
-      OUT_FILE=output/${model_type}/predicted/${tbid}-${task_type}.conllu
+      OUT_FILE=output/${model_type}/predicted/${tbid}-${data_type}-${task_type}.conllu
     done
     fi
 
@@ -56,13 +57,13 @@ for lang in dan swe nno nob; do
   if [ "${model_type}" == 'monolingual' ]; then
     src=${tbid}-${task_type}
   elif [ "${model_type}" == 'multilingual' ]; then
-    src=da_sv_no-${task_type}
+    src="da_sv_no-'${task_type}'"
   fi
 
   #== POS ===
   if [ "${task_type}" == 'pos' ]; then
     echo "predicting pos"
-    PREDICTOR='sentence-tagger'
+    #PREDICTOR='sentence-tagger'
 
     #=== Custom filepath ===
     if [ "${file_type}" == 'user' ]
@@ -75,12 +76,13 @@ for lang in dan swe nno nob; do
         # change name to format expected by dataset reader
         cp ${PRED_FILE} data/faroese/${tbid}-udpipe.parsed.conllu
         PRED_FILE=data/faroese/${tbid}-udpipe.parsed.conllu
+        OUT_FILE=output/${model_type}/predicted/fao_wiki.apertium.fao-${lang}.allennlp.tagged.conllu
       fi
     fi
 
   elif [ "${task_type}" == 'parse']; then
     echo "predicting parse"
-    PREDICTOR=biaffine-dependency-parser-monolingual
+    #PREDICTOR=biaffine-dependency-parser-monolingual
     
     PRED_FILE=output/${model_type}/predicted/${tbid}-pos.conllu # AllenNLP tagged file
       
@@ -91,7 +93,7 @@ fi
 #=== Predict ===
 allennlp predict output/${model_type}/source_models/${src}/model.tar.gz ${PRED_FILE} \
    --output-file ${OUT_FILE} \
-   --predictor ${PREDICTOR} \
+   --predictor conllu-predictor \
    --include-package library \
    --use-dataset-reader
 
