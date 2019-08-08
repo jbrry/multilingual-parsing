@@ -1,12 +1,12 @@
 local word_embedding_dim = 100;
-local char_embedding_dim = 32;
+local char_embedding_dim = 64;
 local embedding_dim = word_embedding_dim + char_embedding_dim + char_embedding_dim;
 local hidden_dim = 400;
 local num_epochs = 50;
 local patience = 10;
 local batch_size = 32;
 local learning_rate = 0.001;
-local cuda_device = -1;
+local cuda_device = 0;
 
 {
   "dataset_reader":{
@@ -23,7 +23,7 @@ local cuda_device = -1;
     },
     "train_data_path": std.extVar("TRAIN_DATA_PATH"),
     "validation_data_path": std.extVar("DEV_DATA_PATH"),
-    "test_data_path": std.extVar("TEST_DATA_PATH"),
+//    "test_data_path": std.extVar("TEST_DATA_PATH"),
     "model": {
       "type": "pos_tagger_monolingual",
       "text_field_embedder": {
@@ -75,7 +75,7 @@ local cuda_device = -1;
       "sorting_keys": [["words", "num_tokens"]],
       "batch_size" : batch_size
     },
-    "evaluate_on_test": true,
+//    "evaluate_on_test": true,
     "trainer": {
       "num_epochs": num_epochs,
       "grad_norm": 5.0,
