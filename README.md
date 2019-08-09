@@ -126,10 +126,13 @@ We follow the same process to develop datasets with [automatically predicted pos
     ```    
 
 ## Train target models
-Train a model on the synthetic target treebank. `model_type` can be either `monolingual` or `multilingual`. `src_type` is either `single` or `multiple` for multi-source.
+Train a tagging and parsing models on the synthetic target treebank. `model_type` can be either `monolingual` or `multilingual`. `src_type` is either `single` or `multiple` for multi-source. We train a tagger here so that we can produce silver tags for the final test set.
+
+```bash
+./scripts/train_target_tagger.sh <model_type> <src_type> 
+```
 
 ```bash
 ./scripts/train_target_parser.sh <model_type> <src_type> 
 ```
-
 
