@@ -124,3 +124,12 @@ We follow the same process to develop datasets with [automatically predicted pos
     ```bash
     python utils/check_double_headed.py <model_type>
     ```    
+
+## Train target models
+Train a model on the synthetic target treebank. `model_type` can be either `monolingual` or `multilingual`. `src_type` is either `single` or `multiple` for multi-source.
+
+```bash
+./scripts/train_target_parser.sh <model_type> <src_type> 
+```
+
+
