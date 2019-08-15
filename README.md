@@ -78,7 +78,7 @@ We follow the same process to develop datasets with [automatically predicted pos
 
 ./scripts/train_with_cross_val.sh
 
-#TODO predict these files.
+./scripts/predict_with_cross_val.sh
 ```
 
 ## Train source models
