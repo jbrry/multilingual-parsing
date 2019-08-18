@@ -31,6 +31,31 @@ def one_treebank_dict(sents, whole):
     return whole
 
 
+def get_sample_sentences(val_path, sample_keys):
+    d_sample_sentences = {}
+    for fname in treebanks:
+        with open(val_path + '/' + fname) as f:
+            sents = f.read().split('\n\n')
+            sampled = treebank_sentence_dict(fname, sents, d_sample_sentences, sample_keys)
+    
+    return d_sample_sentences
+
+
+def treebank_sentence_dict(fname, sents, d_sample_sentences, sample_keys):
+    for sent in sents:
+        s = Sentence(sent)
+        for comment_line in s.comments:
+            if comment_line.startswith('# sent_id = '):
+                num = int(comment_line.split('=')[1].strip())
+                if str(num) in sample_keys:
+                    if fname not in d_sample_sentences:
+                        d_sample_sentences[fname] = [s]
+                    else:
+                        d_sample_sentences[fname].append(s)
+                break
+    return d_sample_sentences
+
+
 def random_union(tbs):
     result = []
     for num in tbs:
@@ -45,6 +70,7 @@ def unite_treebanks(tbs):
 
 
 def fast_write_3_4(whole):
+    sample_sents = []
     three_sents = [[], [], []]
     four_sents = [[], [], [], []]
     
@@ -55,6 +81,7 @@ def fast_write_3_4(whole):
             three_sents[1].append(str(sents[1]))
             three_sents[2].append(str(sents[2]))
         elif len(sents) == 4:
+            sample_sents.append(str(num))
             four_sents[0].append(str(sents[0]))
             four_sents[1].append(str(sents[1]))
             four_sents[2].append(str(sents[2]))
@@ -62,6 +89,7 @@ def fast_write_3_4(whole):
     
     print('# three_sents: ' + str(len(three_sents[0])))
     print('# four_sents: ' + str(len(four_sents[0])))
+   
 
     with open(f'output/{model_type}/tmp/three_1st.conllu', 'w') as f:
         f.write('\n\n'.join(three_sents[0]))
@@ -77,6 +105,26 @@ def fast_write_3_4(whole):
         f.write('\n\n'.join(four_sents[2]))
     with open(f'output/{model_type}/tmp/four_4th.conllu', 'w') as f:
         f.write('\n\n'.join(four_sents[3]))
+    
+    with open(f'output/{model_type}/tmp/sample_sents.conllu', 'w') as f:
+        f.write('\n'.join(sample_sents))
+        
+
+    # extra logic to keep track of filenames and write matching sentences
+    # can fix size of sample_sents to a certain number 
+
+    sampled_names = get_sample_sentences(val_path, sample_sents)
+    for k, v in sampled_names.items():
+        sents = []
+        print(k)
+        for sent in v:
+            sents.append(str(sent))
+            
+        lang = k.split('-')[0]
+        outfile = lang + '-sampled.conllu'
+
+        with open(f'output/{model_type}/tmp/{outfile}', 'w') as f:
+            f.write('\n\n'.join(sents))
 
 
 if __name__ == '__main__':
@@ -91,7 +139,7 @@ if __name__ == '__main__':
     treebanks = []
 
     for treebank in os.listdir(val_path):
-        if 'comb' not in treebank:
+        if 'fao_wiki.apertium' in treebank:
             print(treebank)
             treebanks.append(treebank)
     
