@@ -10,6 +10,9 @@ local batch_size = 32;
 local learning_rate = 0.001;
 local cuda_device = 0;
 {
+  "random_seed":  std.parseInt(std.extVar("RANDOM_SEED")),
+  "numpy_seed": std.parseInt(std.extVar("NUMPY_SEED")),
+  "pytorch_seed": std.parseInt(std.extVar("PYTORCH_SEED")),
   "dataset_reader":{
     "type":"universal_dependencies_tbemb",
     "languages": ["da_ddt", "sv_talbanken", "no_nynorsk", "no_bokmaal"],
@@ -114,6 +117,7 @@ local cuda_device = 0;
       "patience": 10,
       "cuda_device": cuda_device,
       "validation_metric": "+LAS_AVG",
+      "num_serialized_models_to_keep": 3,
       "optimizer": {
         "type": "dense_sparse_adam",
         "betas": [0.9, 0.9]

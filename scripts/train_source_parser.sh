@@ -9,7 +9,7 @@ test -z $2 && exit 1
 data_type=$2
 
 GOLD_DIR='data/ud-treebanks-v2.2'
-SILVER_DIR='data/ud-treebanks-v2.2-crossfold-tags'
+SILVER_DIR='data/ud-2.2-conll18-crossfold-morphology'
 
 if [ ${data_type} == 'gold' ]; then
   echo "training on gold data"
@@ -19,47 +19,63 @@ elif [ ${data_type} == 'silver' ]; then
   TB_DIR=${SILVER_DIR}
 fi
 
-echo "${TB_DIR}"
+echo "treebank dir: ${TB_DIR}"
 
 EMB_DIR=${HOME}/embeddings
 
 TIMESTAMP=`date "+%Y%m%d-%H%M%S"` 
 
-if [ ${model_type} == 'monolingual' ]
-   then echo "training monolingual model(s)..."
+
+
+# repeat experiments with different random_seed, numpy_seed and pytorch_seed
+
+for RANDOM_SEED in 54360 44184 20423 80520 27916; do
+  NUMPY_SEED=`echo $RANDOM_SEED | cut -c1-4`
+  PYTORCH_SEED=`echo $RANDOM_SEED | cut -c1-3`
+
+  # Monolingual
+  if [ ${model_type} == 'monolingual' ]
+    then echo "training monolingual model(s)..."
  
-   for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
-     for filepath in $TB_DIR/*/$tbid-ud-train.conllu; do 
+     for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
+       for filepath in $TB_DIR/*/$tbid-ud-train.conllu; do 
   
-      dir=`dirname $filepath`
-      tb_name=`basename $dir`
+        dir=`dirname $filepath`
+        tb_name=`basename $dir`
 
-      export TRAIN_DATA_PATH=${TB_DIR}/${tb_name}/${tbid}-ud-train.conllu
-      export DEV_DATA_PATH=${TB_DIR}/${tb_name}/${tbid}-ud-dev.conllu
-      export TEST_DATA_PATH=${TB_DIR}/${tb_name}/${tbid}-ud-test.conllu
+        export TRAIN_DATA_PATH=${TB_DIR}/${tb_name}/${tbid}-ud-train.conllu
+        export DEV_DATA_PATH=${TB_DIR}/${tb_name}/${tbid}-ud-dev.conllu
+        #export TEST_DATA_PATH=${TB_DIR}/${tb_name}/${tbid}-ud-test.conllu
 
-      lang=$(echo ${tb_name} | awk -F "_" '{print $2}')
+        export RANDOM_SEED=${RANDOM_SEED}
+        export NUMPY_SEED=${NUMPY_SEED}
+        export PYTORCH_SEED=${PYTORCH_SEED}
 
-      echo "processing language: ${lang}"
-
-      VECS_DIR=${EMB_DIR}/${lang}
-      VECS_FILE=$(ls ${VECS_DIR}/*.vectors)
+        lang=$(echo ${tb_name} | awk -F "_" '{print $2}')
+        echo "processing language: ${lang}"
+        VECS_DIR=${EMB_DIR}/${lang}
+        VECS_FILE=$(ls ${VECS_DIR}/*.vectors)
       
-      echo "using ${VECS_FILE}"
-      export VECS_PATH=${VECS_FILE}
+        echo "using ${VECS_FILE}"
+        export VECS_PATH=${VECS_FILE}
 
-      allennlp train configs/monolingual/dependency_parser_char.jsonnet -s output/monolingual/source_models/${tbid}-${data_type}-${TIMESTAMP}
+      allennlp train configs/monolingual/dependency_parser_char.jsonnet -s output/monolingual/source_models/${tbid}-${data_type}-${RANDOM_SEED}
     
     done
   done
 
-elif [ ${model_type} == 'multilingual' ]
-  then echo "training multilingual model..."
-  export TRAIN_DATA_PATH=${TB_DIR}/**/*-ud-train.conllu
-  export DEV_DATA_PATH=${TB_DIR}/**/*-ud-dev.conllu
-  export TEST_DATA_PATH=${TB_DIR}/**/*-ud-test.conllu
+  elif [ ${model_type} == 'multilingual' ]
+    then echo "training multilingual model..."
 
-  allennlp train configs/multilingual/source_tbemb.jsonnet -s output/multilingual/source_models/da_sv_no-${data_type}-$TIMESTAMP \
-  --include-package library
+    export RANDOM_SEED=${RANDOM_SEED}
+    export NUMPY_SEED=${NUMPY_SEED}
+    export PYTORCH_SEED=${PYTORCH_SEED}
 
+    export TRAIN_DATA_PATH=${TB_DIR}/**/*-ud-train.conllu
+    export DEV_DATA_PATH=${TB_DIR}/**/*-ud-dev.conllu
+    #export TEST_DATA_PATH=${TB_DIR}/**/*-ud-test.conllu
+
+    allennlp train configs/multilingual/source_tbemb.jsonnet -s output/multilingual/source_models/da_sv_no-${data_type}-${RANDOM_SEED} \
+    --include-package library
 fi
+done
