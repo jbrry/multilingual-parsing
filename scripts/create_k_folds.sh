@@ -6,8 +6,6 @@ OUT_DIR='data/ud-treebanks-v2.2-crossfold-tags'
 
 mkdir -p ${TMP_DIR} ${OUT_DIR}
 
-TIMESTAMP=`date "+%Y%m%d-%H%M%S"` 
-
 for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
   for filepath in $TB_DIR/*/$tbid-ud-train.conllu; do 
   
