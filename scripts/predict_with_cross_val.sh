@@ -13,13 +13,14 @@ SUFFIX='-20190804-193214' # easier to just find the run you want rather than ren
 PREDICTOR='conllu-predictor'
 
 # clean and create tmp dir
-rm -rf ${TMP_DIR}
-mkdir -p ${TMP_DIR}
+#rm -rf ${TMP_DIR}
+#mkdir -p ${TMP_DIR}
 
 if [ ${data_type} == 'train' ]
-  then echo "training monolingual model(s) for on training splits..."
+  then echo "precdicting monolingual model(s) on training splits..."
 
-  for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
+  for RANDOM_SEED in 54360 44184 20423 80520 27916; do  
+    for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
       for split in 0 1 2 3 4 5 6 7 8 9; do
           for filepath in ${GLD_DIR}/*/${tbid}-ud-train.conllu; do
               dir=`dirname $filepath`
@@ -27,10 +28,10 @@ if [ ${data_type} == 'train' ]
 
               mkdir -p ${TMP_DIR}/${tb_name}
 
-			  PRED_FILE=${GLD_DIR}/${tb_name}/${tbid}-ud-dev.conllu.split-${split}
-			  OUT_FILE=${TMP_DIR}/${tb_name}/${tbid}-ud-dev.conllu.split-${split}-predicted
+			  PRED_FILE=${TMP_DIR}/${tb_name}/${tbid}-ud-dev.conllu.split-${split}
+			  OUT_FILE=${TMP_DIR}/${tb_name}/${tbid}-ud-dev.conllu.split-${split}-predicted-${RANDOM_SEED} 
 
-			  src=${tbid}-split-${split}${SUFFIX}
+			  src=${tbid}-split-${split}-${RANDOM_SEED}
 
 			  #=== Predict ===
 			  allennlp predict output/monolingual/cross_val/${src}/model.tar.gz ${PRED_FILE} \
@@ -40,16 +41,18 @@ if [ ${data_type} == 'train' ]
    				--use-dataset-reader
 
               # append the predictions of the splits to the training file 
-              cat ${TMP_DIR}/${tb_name}/${tbid}-ud-dev.conllu.split-${split}-predicted  >> ${TMP_DIR}/${tb_name}/${tbid}-ud-train.conllu
+              cat ${TMP_DIR}/${tb_name}/${tbid}-ud-dev.conllu.split-${split}-predicted-${RANDOM_SEED} >> ${TMP_DIR}/${tb_name}/${tbid}-ud-train-${RANDOM_SEED}.conllu
     done
   done
 
-  cp ${TMP_DIR}/${tb_name}/${tbid}-ud-train.conllu ${TB_DIR}/${tb_name}/${tbid}-ud-train.conllu
+  cp ${TMP_DIR}/${tb_name}/${tbid}-ud-train-${RANDOM_SEED}.conllu ${TB_DIR}/${tb_name}/${tbid}-ud-train-${RANDOM_SEED}.conllu
+done
 done
 
 elif [ ${data_type} == 'dev' ]
   then echo "predicting on dev set using fully trained model..."
 
+for RANDOM_SEED in 54360 44184 20423 80520 27916; do  
   for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
     for filepath in ${GLD_DIR}/*/${tbid}-ud-train.conllu; do
       dir=`dirname $filepath`
@@ -58,9 +61,9 @@ elif [ ${data_type} == 'dev' ]
       PRED_FILE=${GLD_DIR}/${tb_name}/${tbid}-ud-dev.conllu
       
       # put output file in predicted folder
-      OUT_FILE=${TB_DIR}/${tb_name}/${tbid}-ud-dev.conllu
+      OUT_FILE=${TB_DIR}/${tb_name}/${tbid}-${RANDOM_SEED}-ud-dev.conllu
 
-      src=${tbid}-pos${SUFFIX}
+      src=${tbid}-pos-${RANDOM_SEED}
       
       #=== Predict ===
       allennlp predict output/monolingual/source_models/${src}/model.tar.gz ${PRED_FILE} \
@@ -68,7 +71,7 @@ elif [ ${data_type} == 'dev' ]
         --predictor ${PREDICTOR} \
         --include-package library \
         --use-dataset-reader
-
+      done
     done
   done
 fi
