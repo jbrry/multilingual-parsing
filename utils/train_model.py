@@ -3,7 +3,7 @@ import os
 import sys
 
 UDPIPE_PATH = 'udpipe' # the path to your UDPipe binary
-FAR_TEST = '/home/jbarry/ud-treebanks-v2.2/UD_Faroese-OFT/fo_oft-ud-test.conllu' # the path to faroese test treebank
+FAR_TEST = 'data/ud-treebanks-v2.2/UD_Faroese-OFT/fo_oft-ud-test.conllu' # the path to faroese test treebank
 
 
 def make_tmp_dirs():
