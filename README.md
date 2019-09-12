@@ -79,6 +79,13 @@ We follow the same process to develop datasets with [automatically predicted pos
 ./scripts/train_with_cross_val.sh
 
 ./scripts/predict_with_cross_val.sh
+
+# train a model on full training data to predict the dev set:
+
+./scripts/train_source_tagger.sh monolingual
+
+./scripts/predict_source_tagger.sh monolingual ud dev
+
 ```
 
 ## Train source models
