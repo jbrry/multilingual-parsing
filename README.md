@@ -92,14 +92,17 @@ We follow the same process to develop datasets with [automatically predicted pos
 1.  Train a source model on source treebanks. The `model_type` argument supplied can be either `monolingual` or `multilingual` and determines whether to use a monolingual or multilingual model accordingly.
 
     ```bash
-    train_source_model.sh <model_type>
+    ./scripts/train_source_parser.sh <model_type>
     ```
 
 ## Predict translated source files
 1.  Use a source model to predict annotations for files translated into source languages. The `model_type` argument supplied can be either `monolingual` or `multilingual` and determines whether to use a monolingual or multilingual model accordingly.
 
     ```bash
-    ./predict_source_parser.sh <model_type>
+    
+    ./scripts/predict_source_tagger.sh monolingual user
+    
+    ./scripts/predict_source_parser.sh <model_type>
     ```
 
 ## Projection steps
