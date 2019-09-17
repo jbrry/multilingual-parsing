@@ -99,7 +99,7 @@ We follow the same process to develop datasets with [automatically predicted pos
 1.  Use a source model to predict annotations for files translated into source languages. The `model_type` argument supplied can be either `monolingual` or `multilingual` and determines whether to use a monolingual or multilingual model accordingly.
 
     ```bash
-    ./predict_source_treebanks.sh <model_type>
+    ./predict_source_parser.sh <model_type>
     ```
 
 ## Projection steps
