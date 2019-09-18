@@ -9,12 +9,8 @@ TMP_DIR='data/tmp'
 TB_DIR='data/ud-treebanks-v2.2-crossfold-tags'
 
 TIMESTAMP=`date "+%Y%m%d-%H%M%S"` 
-SUFFIX='-20190804-193214' # easier to just find the run you want rather than rename everything
+SUFFIX='-20190804-193214'
 PREDICTOR='conllu-predictor'
-
-# clean and create tmp dir
-#rm -rf ${TMP_DIR}
-#mkdir -p ${TMP_DIR}
 
 if [ ${data_type} == 'train' ]
   then echo "precdicting monolingual model(s) on training splits..."
@@ -31,6 +27,7 @@ if [ ${data_type} == 'train' ]
 			  PRED_FILE=${TMP_DIR}/${tb_name}/${tbid}-ud-dev.conllu.split-${split}
 			  OUT_FILE=${TMP_DIR}/${tb_name}/${tbid}-ud-dev.conllu.split-${split}-predicted-${RANDOM_SEED} 
 
+              # source model to predict
 			  src=${tbid}-split-${split}-${RANDOM_SEED}
 
 			  #=== Predict ===
@@ -52,25 +49,26 @@ done
 elif [ ${data_type} == 'dev' ]
   then echo "predicting on dev set using fully trained model..."
 
-for RANDOM_SEED in 54360 44184 20423 80520 27916; do  
-  for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
-    for filepath in ${GLD_DIR}/*/${tbid}-ud-train.conllu; do
-      dir=`dirname $filepath`
-      tb_name=`basename $dir`
+  for RANDOM_SEED in 54360 44184 20423 80520 27916; do  
+    for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
+      for filepath in ${GLD_DIR}/*/${tbid}-ud-train.conllu; do
+        dir=`dirname $filepath`
+        tb_name=`basename $dir`
      
-      PRED_FILE=${GLD_DIR}/${tb_name}/${tbid}-ud-dev.conllu
+        PRED_FILE=${GLD_DIR}/${tb_name}/${tbid}-ud-dev.conllu
       
-      # put output file in predicted folder
-      OUT_FILE=${TB_DIR}/${tb_name}/${tbid}-${RANDOM_SEED}-ud-dev.conllu
+        OUT_FILE=${TB_DIR}/${tb_name}/${tbid}-ud-dev-${RANDOM_SEED}.conllu
 
-      src=${tbid}-pos-${RANDOM_SEED}
+        # source model
+        src=${tbid}-pos-${RANDOM_SEED}
       
-      #=== Predict ===
-      allennlp predict output/monolingual/source_models/${src}/model.tar.gz ${PRED_FILE} \
-        --output-file ${OUT_FILE} \
-        --predictor ${PREDICTOR} \
-        --include-package library \
-        --use-dataset-reader
+        #=== Predict ===
+        allennlp predict output/monolingual/source_models/${src}/model.tar.gz ${PRED_FILE} \
+          --output-file ${OUT_FILE} \
+          --predictor ${PREDICTOR} \
+          --include-package library \
+          --use-dataset-reader
+      
       done
     done
   done

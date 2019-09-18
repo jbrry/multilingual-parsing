@@ -35,62 +35,56 @@ for lang in dan swe nno nob; do
   
   echo "processing ${tbid}..."
 
-  # embeddings paths
-  for filepath in ${TB_DIR}/*/${tbid}-ud-train.conllu; do
-    dir=`dirname $filepath`
-    tb_name=`basename $dir`
+  for RANDOM_SEED in 54360 44184 20423 80520 27916; do
 
-    vecs_lang=$(echo ${tb_name} | awk -F "_" '{print $2}')
-    echo "processing language: ${vecs_lang}" 
-    
-	VECS_DIR=${EMB_DIR}/${vecs_lang}
-    VECS_FILE=$(ls ${VECS_DIR}/*.vectors)
-    
-	echo "using ${VECS_FILE}"
-    export VECS_PATH=${VECS_FILE}
-
-    done
-
-  #=== Model type ===
-  if [ "${model_type}" == 'monolingual' ]; then
-    src=${tbid}-pos-${SUFFIX}
-  elif [ "${model_type}" == 'multilingual' ]; then
-    src="da_sv_no-pos"
-
-    # change name to format expected by dataset reader
-#    cp ${PRED_FILE} data/faroese/${tbid}-udpipe.parsed.conllu
-#    PRED_FILE=data/faroese/${tbid}-udpipe.parsed.conllu
-#    OUT_FILE=output/${model_type}/predicted/fao_wiki.apertium.fao-${lang}.allennlp.tagged.conllu
-  fi
-  
-  #=== UD treebank ===
-  if [ "${file_type}" == 'ud' ]; then
-    echo "tagging UD treebank"
-
-    # find the appropriate UD treebank
     for filepath in ${TB_DIR}/*/${tbid}-ud-train.conllu; do
       dir=`dirname $filepath`
       tb_name=`basename $dir`
 
-      PRED_FILE=${TB_DIR}/${tb_name}/${tbid}-ud-${data_type}.conllu
-      OUT_FILE=output/${model_type}/predicted/${tbid}-${data_type}-allennlp-tagged.conllu
+      # embeddings
+      vecs_lang=$(echo ${tb_name} | awk -F "_" '{print $2}')
+      echo "processing language: ${vecs_lang}" 
+	  VECS_DIR=${EMB_DIR}/${vecs_lang}
+      VECS_FILE=$(ls ${VECS_DIR}/*.vectors)
+	  echo "using embeddings: ${VECS_FILE}"
+      export VECS_PATH=${VECS_FILE}
     done
 
-  #=== Custom filepath ===
-  elif [ "${file_type}" == 'user' ]
-    then echo "tagging user-created file with custom paths/name"
+    #=== Model type ===
+    if [ "${model_type}" == 'monolingual' ]; then
+      src=${tbid}-pos-${RANDOM_SEED}
+    elif [ "${model_type}" == 'multilingual' ]; then
+      src="da_sv_no-pos-${RANDOM_SEED}"
+    fi 
+
+    #=== UD treebank ===
+    if [ "${file_type}" == 'ud' ]; then
+      echo "tagging UD treebank"
+
+      # find the appropriate UD treebank
+      for filepath in ${TB_DIR}/*/${tbid}-ud-train.conllu; do
+        dir=`dirname $filepath`
+        tb_name=`basename $dir`
+
+        PRED_FILE=${TB_DIR}/${tb_name}/${tbid}-ud-${data_type}.conllu
+        OUT_FILE=output/${model_type}/predicted/${tbid}-${data_type}-allennlp-tagged-${RANDOM_SEED}.conllu
+      done
+
+    #=== Custom filepath ===
+    elif [ "${file_type}" == 'user' ]
+      then echo "tagging user-created file with custom paths/name"
       
-    # path to source udpipe segmented/tokenized file to predict
-    PRED_FILE=data/faroese/fao_wiki.apertium.fao-${lang}.udpipe.parsed.conllu
-    OUT_FILE=data/faroese/fao_wiki.apertium.fao-${lang}.allennlp.tagged.conllu
-  fi   
+      # path to source UDPipe segmented/tokenized file to predict
+      PRED_FILE=data/faroese/fao_wiki.apertium.fao-${lang}.udpipe.parsed.conllu
+      OUT_FILE=data/faroese/fao_wiki.apertium.fao-${lang}-${RANDOM_SEED}.allennlp.tagged.conllu
+    fi   
 
-#=== Predict ===
-allennlp predict output/${model_type}/source_models/${src}/model.tar.gz ${PRED_FILE} \
-   --output-file ${OUT_FILE} \
-   --predictor conllu-predictor \
-   --include-package library \
-   --use-dataset-reader
+  #=== Predict ===
+  allennlp predict output/${model_type}/source_models/${src}/model.tar.gz ${PRED_FILE} \
+     --output-file ${OUT_FILE} \
+     --predictor conllu-predictor \
+     --include-package library \
+     --use-dataset-reader
 
+  done
 done
-
