@@ -44,22 +44,23 @@ cd /path/to/multilingual_parsing
 
 export PYTHONPATH="$PWD/library"
 
-# or permanently;
+# or permanently:
 vim ~/.bashrc
 export PYTHONPATH=/path/to/multilingual_parsing/library
+source ~/.bashrc
 ```
 
 ## Obtain data
-You will need to obtain the original Faroese data for these experiments please.
+You will need to obtain the original Faroese data for these experiments.
 
-1.  Clone the original repository to somewhere in your file system, e.g. in your home directory.
+1.  Clone the original repository to somewhere in your file system, e.g. in your home directory:
     ```bash
     cd $HOME && git clone https://github.com/ftyers/cross-lingual-parsing.git
     ```
     
-2.  Change directory to your clone of this repo and create a symbolic link to the original data.
+2.  Change directory to your clone of this repo and create a symbolic link to the original data:
     ```bash
-    cd multilingual-parsing
+    cd path/to/multilingual-parsing
     ln -s /home/user/cross-lingual-parsing/data/ .
     ```
 
@@ -71,7 +72,7 @@ This should create a directory structure `multilingual-parsing/data/`.
     ```
 
 ## Create silver training/ development sets
-We follow the same process to develop datasets with [automatically predicted pos-labels](http://universaldependencies.org/conll18/baseline.html) as the CoNLL 2018 shared task. That is, we perform jack-knifing on ther training set to predict pos-tags. Pos-tags on the development set are predicted with a model trained on the gold-standard training set.
+We follow the same process to develop datasets with [automatically predicted pos-labels](http://universaldependencies.org/conll18/baseline.html) as the CoNLL 2018 shared task. That is, we perform jack-knifing on the training set to predict POS tags. POS tags on the development set are predicted with a model trained on the gold-standard training set.
 
 ```bash
 ./scripts/create_k_folds.sh
@@ -80,16 +81,16 @@ We follow the same process to develop datasets with [automatically predicted pos
 
 ./scripts/predict_with_cross_val.sh
 
-# train a model on full training data to predict the dev set:
+# train a model on full training data and predict the dev set:
 
 ./scripts/train_source_tagger.sh monolingual
 
-./scripts/predict_source_tagger.sh monolingual ud dev
+./scripts/predict_with_cross_val.sh dev
 
 ```
 
 ## Train source models
-1.  Train a source model on source treebanks. The `model_type` argument supplied can be either `monolingual` or `multilingual` and determines whether to use a monolingual or multilingual model accordingly.
+1.  Train a source model on source treebanks. The `model_type` argument supplied can be either `monolingual` or `multilingual` and determines whether to use a monolingual or multilingual model accordingly. You will already have trained source taggers from the previous step.
 
     ```bash
     ./scripts/train_source_parser.sh <model_type>
@@ -99,10 +100,11 @@ We follow the same process to develop datasets with [automatically predicted pos
 1.  Use a source model to predict annotations for files translated into source languages. The `model_type` argument supplied can be either `monolingual` or `multilingual` and determines whether to use a monolingual or multilingual model accordingly.
 
     ```bash
-    
+    # first supply tags
     ./scripts/predict_source_tagger.sh monolingual user
     
-    ./scripts/predict_source_parser.sh <model_type>
+    # parse the translations
+    ./scripts/predict_source_parser.sh <model_type> user
     ```
 
 ## Projection steps
@@ -145,4 +147,3 @@ Train a tagging and parsing models on the synthetic target treebank. `model_type
 ```bash
 ./scripts/train_target_parser.sh <model_type> <src_type> 
 ```
-
