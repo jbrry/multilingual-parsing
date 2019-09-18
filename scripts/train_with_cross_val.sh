@@ -11,8 +11,7 @@ TB_DIR='data/ud-treebanks-v2.2-crossfold-tags'
 EMB_DIR=${HOME}/embeddings
 
 # repeat experiments with different random_seed, numpy_seed and pytorch_seed
-#for RANDOM_SEED in 54360 44184 20423 80520 27916; do
-for RANDOM_SEED in 27916; do
+for RANDOM_SEED in 54360 44184 20423 80520 27916; do
   NUMPY_SEED=`echo $RANDOM_SEED | cut -c1-4`
   PYTORCH_SEED=`echo $RANDOM_SEED | cut -c1-3`
 
@@ -23,8 +22,7 @@ for RANDOM_SEED in 27916; do
   if [ ${model_type} == 'monolingual' ]
     then echo "training monolingual model(s)..."
 
-    #for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
-    for tbid in no_bokmaal; do
+    for tbid in da_ddt sv_talbanken no_nynorsk no_bokmaal; do
         for split in 0 1 2 3 4 5 6 7 8 9; do
             for filepath in ${GLD_DIR}/*/${tbid}-ud-train.conllu; do
                 dir=`dirname $filepath`
@@ -49,7 +47,6 @@ done
 
 elif [ ${model_type} == 'multilingual' ]
   then echo "training multilingual model... not implemented"
-
 
   #  allennlp train configs/multilingual/pos_source_tbemb.jsonnet -s output/multilingual/cross_val/da_sv_no-$TIMESTAMP \
   #    --include-package library
