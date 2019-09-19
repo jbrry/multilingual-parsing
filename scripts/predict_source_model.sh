@@ -63,7 +63,6 @@ for lang in dan swe nno nob; do
   #== POS ===
   if [ "${task_type}" == 'pos' ]; then
     echo "predicting pos"
-    #PREDICTOR='sentence-tagger'
 
     #=== Custom filepath ===
     if [ "${file_type}" == 'user' ]
@@ -82,9 +81,15 @@ for lang in dan swe nno nob; do
 
   elif [ "${task_type}" == 'parse']; then
     echo "predicting parse"
-    #PREDICTOR=biaffine-dependency-parser-monolingual
     
-    PRED_FILE=output/${model_type}/predicted/${tbid}-pos.conllu # AllenNLP tagged file
+    PRED_FILE=data/faroese/fao_wiki.apertium.fao-${lang}.udpipe.parsed.conllu
+    if [ "${model_type}" == 'multiingual' ]; then
+        # change name to format expected by dataset reader
+        cp ${PRED_FILE} data/faroese/${tbid}-udpipe.parsed.conllu
+        PRED_FILE=data/faroese/${tbid}-udpipe.parsed.conllu
+        OUT_FILE=output/${model_type}/predicted/fao_wiki.apertium.fao-${lang}.allennlp.tagged.conllu
+    fi
+    #PRED_FILE=output/${model_type}/predicted/${tbid}-pos.conllu # AllenNLP tagged file
       
     # file to write
     OUT_FILE=output/${model_type}/predicted/fao_wiki.apertium.fao-${tbid}.allennlp.parsed.conllu
