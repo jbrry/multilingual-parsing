@@ -22,7 +22,10 @@ for lang in dan swe nno nob; do
 
   echo "projecting source files from $tbid"
 
-  python utils/project_aligned_trees.py output/${model_type}/predicted/fao_wiki.apertium.fao-${tbid}.allennlp.parsed.conllu data/faroese/fao_wiki.apertium.fao-${lang}.align.txt data/faroese/fao_wiki.apertium.${lang}-fao.input.txt > output/${model_type}/projected/fao_wiki.apertium.${lang}-fao.allennlp.projected.conllu
+  for RANDOM_SEED in 54360 44184 20423 80520 27916; do
 
+  python utils/project_aligned_trees.py output/${model_type}/predicted/fao_wiki.apertium.fao-${tbid}-${RANDOM_SEED}.allennlp.parsed.conllu data/faroese/fao_wiki.apertium.fao-${lang}.align.txt data/faroese/fao_wiki.apertium.${lang}-fao.input.txt > output/${model_type}/projected/fao_wiki.apertium.${lang}-fao-${RANDOM_SEED}.allennlp.projected.conllu
+
+  done
 done
 

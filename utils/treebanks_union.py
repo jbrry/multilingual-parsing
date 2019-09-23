@@ -3,18 +3,26 @@ import sys
 import random
 from conllu_parser import *
 
+# enable for writing only the intersection of tbs that were included in MST voting
+sample_treebanks = False
+
+# random seeds used for these experiments
+RANDOM_SEEDS=['54360','44184','20423','80520','27916']
+
 
 def treebanks_dict(val_path):
     whole = {}
-    for fname in treebanks:
-        with open(val_path + '/' + fname) as f:
-            sents = f.read().split('\n\n')
-            # at this point, treebank has n sub-lists for each file,
-            # where n is a number of treebank versions
+    for random_seed in RANDOM_SEEDS:
+        for fname in treebanks:
+            if str(random_seed) in fname:
+                with open(val_path + '/' + fname) as f:
+                    sents = f.read().split('\n\n')
+                    # at this point, treebank has n sub-lists for each file,
+                    # where n is a number of treebank versions
 
-            whole = one_treebank_dict(sents, whole)
-    print('# union: ' + str(len(whole)))
-    return whole
+                    whole = one_treebank_dict(sents, whole)
+        print('# union: ' + str(len(whole)))
+        return whole
 
 
 def one_treebank_dict(sents, whole):
@@ -69,7 +77,7 @@ def unite_treebanks(tbs):
     # treebank.append([Sentence(s) for s in sents])
 
 
-def fast_write_3_4(whole):
+def fast_write_3_4(whole, random_seed):
     sample_sents = []
     three_sents = [[], [], []]
     four_sents = [[], [], [], []]
@@ -90,41 +98,41 @@ def fast_write_3_4(whole):
     print('# three_sents: ' + str(len(three_sents[0])))
     print('# four_sents: ' + str(len(four_sents[0])))
    
-
-    with open(f'output/{model_type}/tmp/three_1st.conllu', 'w') as f:
+    with open(f'output/{model_type}/tmp/three_1st_{random_seed}.conllu', 'w') as f:
         f.write('\n\n'.join(three_sents[0]))
-    with open(f'output/{model_type}/tmp/three_2nd.conllu', 'w') as f:
+    with open(f'output/{model_type}/tmp/three_2nd_{random_seed}.conllu', 'w') as f:
         f.write('\n\n'.join(three_sents[1]))
-    with open(f'output/{model_type}/tmp/three_3rd.conllu', 'w') as f:
+    with open(f'output/{model_type}/tmp/three_3rd_{random_seed}.conllu', 'w') as f:
         f.write('\n\n'.join(three_sents[2]))
-    with open(f'output/{model_type}/tmp/four_1st.conllu', 'w') as f:
+    with open(f'output/{model_type}/tmp/four_1st_{random_seed}.conllu', 'w') as f:
         f.write('\n\n'.join(four_sents[0]))
-    with open(f'output/{model_type}/tmp/four_2nd.conllu', 'w') as f:
+    with open(f'output/{model_type}/tmp/four_2nd_{random_seed}.conllu', 'w') as f:
         f.write('\n\n'.join(four_sents[1]))
-    with open(f'output/{model_type}/tmp/four_3rd.conllu', 'w') as f:
+    with open(f'output/{model_type}/tmp/four_3rd_{random_seed}.conllu', 'w') as f:
         f.write('\n\n'.join(four_sents[2]))
-    with open(f'output/{model_type}/tmp/four_4th.conllu', 'w') as f:
+    with open(f'output/{model_type}/tmp/four_4th_{random_seed}.conllu', 'w') as f:
         f.write('\n\n'.join(four_sents[3]))
     
     with open(f'output/{model_type}/tmp/sample_sents.conllu', 'w') as f:
         f.write('\n'.join(sample_sents))
         
 
-    # extra logic to keep track of filenames and write matching sentences
-    # can fix size of sample_sents to a certain number 
+    if sample_treebanks == True:
+        # extra logic to keep track of filenames and write matching sentences
+        # can fix size of sample_sents to a certain number 
 
-    sampled_names = get_sample_sentences(val_path, sample_sents)
-    for k, v in sampled_names.items():
-        sents = []
-        print(k)
-        for sent in v:
-            sents.append(str(sent))
+        sampled_names = get_sample_sentences(val_path, sample_sents)
+        for k, v in sampled_names.items():
+            sents = []
+            #print(k)
+            for sent in v:
+                sents.append(str(sent))
             
-        lang = k.split('-')[0]
-        outfile = lang + '-sampled.conllu'
+            lang = k.split('-')[0]
+            outfile = lang + '-sampled.conllu'
 
-        with open(f'output/{model_type}/tmp/{outfile}', 'w') as f:
-            f.write('\n\n'.join(sents))
+            #with open(f'output/{model_type}/tmp/{outfile}', 'w') as f:
+            #    f.write('\n\n'.join(sents))
 
 
 if __name__ == '__main__':
@@ -138,13 +146,14 @@ if __name__ == '__main__':
     # populate treebanks list with files in 'validated' folder
     treebanks = []
 
-    for treebank in os.listdir(val_path):
-        if 'fao_wiki.apertium' in treebank:
-            print(treebank)
-            treebanks.append(treebank)
+    for random_seed in RANDOM_SEEDS:
+        for treebank in os.listdir(val_path):
+            if 'fao_wiki.apertium' in treebank and str(random_seed) in treebank:
+                print("found", treebank)
+                treebanks.append(treebank)
     
-    union = treebanks_dict(val_path)
-    fast_write_3_4(union)
+        union = treebanks_dict(val_path)
+        fast_write_3_4(union, random_seed)
 
     # tbs = treebanks_dict()
     # res = random_union(tbs)
