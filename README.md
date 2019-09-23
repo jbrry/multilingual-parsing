@@ -114,7 +114,7 @@ We follow the same process to develop datasets with [automatically predicted pos
     ```
 2.  Take only the valid sentences.
     ```bash
-    ./scripts/validate_all.sh <model_type>
+    ./scripts/validate_all.sh <model_type> single
     ```
     
 3.  Combine sentences where we have 3/4 valid projected sentences.
@@ -127,14 +127,14 @@ We follow the same process to develop datasets with [automatically predicted pos
     ./scripts/merge_all.sh <model_type>
     ```
     
-5.  Validate the voted sentences. `file_type` is either `single` or `combined` if validating the combined treebank. 
+5.  Validate the voted sentences.
     ```bash
-    ./scripts/validate_all.sh <model_type> <file_type>
+    ./scripts/validate_all.sh <model_type> combined
     ```
     
 5.  Check for double-headed sentences.
     ```bash
-    python scripts/check_double_headed_all.sh <model_type>
+    ./scripts/check_double_headed_all.sh <model_type>
     ```    
 
 ## Train target models
