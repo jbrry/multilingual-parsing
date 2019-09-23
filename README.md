@@ -127,14 +127,14 @@ We follow the same process to develop datasets with [automatically predicted pos
     ./scripts/merge_all.sh <model_type>
     ```
     
-5.  Validate the voted sentences.
+5.  Validate the voted sentences. `file_type` is either `single` or `combined` if validating the combined treebank. 
     ```bash
-    python utils/validate_treebank.py output/<model_type>/tmp/combined_four.conllu <model_type>
+    ./scripts/validate_all.sh <model_type> <file_type>
     ```
     
 5.  Check for double-headed sentences.
     ```bash
-    python utils/check_double_headed.py <model_type>
+    python scripts/check_double_headed_all.sh <model_type>
     ```    
 
 ## Train target models
