@@ -15,7 +15,7 @@ echo "predicting target treebanks"
 
 if [ "${data_type}" == 'target' ]; then
   echo "training on only target files"
-  SUFFIX=20190815-164746
+  SUFFIX=20190816-165947
 elif [ "${data_type}" == 'sourcetarget' ]; then
   echo "predicting model which used both source and target files"
   SUFFIX=source-target 
@@ -25,9 +25,9 @@ src=multi-target-${SUFFIX}
 
 for lang in da_ddt sv_talbanken no_nynorsk no_bokmaal co_four; do
   OUTFILE=output/${model_type}/target_predicted/${lang}-fao-${SUFFIX}.conllu 
-  PRED_FILE=output/${model_type}/target_predicted/fa_oft-test-${lang}.allennlp-multi.tagged.conllu 
+  PRED_FILE=output/${model_type}/target_predicted/${lang}-fotest.allennlp-multi.tagged.conllu 
 
-  allennlp predict output/${model_type}/target_models/${lang}-${SUFFIX}/model.tar.gz ${PRED_FILE} \
+  allennlp predict output/${model_type}/target_models/${src}/model.tar.gz ${PRED_FILE} \
       --output-file ${OUTFILE} \
       --predictor conllu-predictor \
       --include-package library \
