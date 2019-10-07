@@ -147,3 +147,15 @@ Train a tagging and parsing models on the synthetic target treebank. `model_type
 ```bash
 ./scripts/train_target_parser.sh <model_type>
 ```
+
+## Predict target models
+Predict the Faroese test set with the various target taggers and parsers.
+
+
+```bash
+./scripts/predict_target_tagger.sh <model_type>
+```
+
+```bash
+./scripts/predict_target_parser.sh <model_type>
+```
