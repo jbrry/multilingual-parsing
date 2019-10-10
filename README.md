@@ -1,6 +1,8 @@
 # multilingual-parsing
 
-Repository for cross-lingual parsing for low-resource languages by means of annotation projection. Code for Parsing a Low-Resource Language... submitted to the DeepLo Workshop 2019.
+Repository for Cross-lingual Parsing with Polyglot Training and Multi-treebank Learning: A Faroese Case Study, submitted to the [DeepLo Workshop at EMNLP 2019](https://sites.google.com/view/deeplo19/).
+
+The code will be tidied up the code over the next couple of weeks.
 
 ## Table of Contents
 
