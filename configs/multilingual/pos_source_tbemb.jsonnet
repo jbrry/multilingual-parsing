@@ -81,16 +81,7 @@ local cuda_device = 0;
       ],
       "use_treebank_embedding": true,
       "dropout": 0.33,
-      "input_dropout": 0.33,
-      "initializer": [
-        [".*projection.*weight", {"type": "xavier_uniform"}],
-        [".*projection.*bias", {"type": "zero"}],
-        [".*tag_bilinear.*weight", {"type": "xavier_uniform"}],
-        [".*tag_bilinear.*bias", {"type": "zero"}],
-        [".*weight_ih.*", {"type": "xavier_uniform"}],
-        [".*weight_hh.*", {"type": "orthogonal"}],
-        [".*bias_ih.*", {"type": "zero"}],
-        [".*bias_hh.*", {"type": "lstm_hidden_bias"}]]
+      "input_dropout": 0.33
     },
     "evaluate_on_test": true,
     "trainer": {
