@@ -9,9 +9,6 @@ local learning_rate = 0.001;
 local cuda_device = 0;
 
 {
-  "random_seed": std.parseInt(std.extVar("RANDOM_SEED")),
-  "numpy_seed": std.parseInt(std.extVar("NUMPY_SEED")),
-  "pytorch_seed": std.parseInt(std.extVar("PYTORCH_SEED")),
   "dataset_reader":{
     "type":"universal_dependencies_monolingual",
       "token_indexers": {
@@ -25,18 +22,13 @@ local cuda_device = 0;
       }
     },
     "train_data_path": std.extVar("TRAIN_DATA_PATH"),
-    "validation_data_path": std.extVar("DEV_DATA_PATH"),
-//    "test_data_path": std.extVar("TEST_DATA_PATH"),
     "model": {
       "type": "pos_tagger_monolingual",
       "text_field_embedder": {
         "token_embedders": {
           "tokens": {
             "type": "embedding",
-            "embedding_dim": word_embedding_dim,
-            "pretrained_file": std.extVar("VECS_PATH"),
-            "trainable": true,
-            "sparse": true
+            "embedding_dim": word_embedding_dim
            },
            "token_characters": {
              "type": "character_encoding",
@@ -62,21 +54,19 @@ local cuda_device = 0;
         "use_highway": true
       },
       "dropout": 0.33,
-      "input_dropout": 0.33,
+      "input_dropout": 0.33
     },
     "iterator": {
       "type": "bucket",
       "sorting_keys": [["words", "num_tokens"]],
       "batch_size" : batch_size
     },
-//    "evaluate_on_test": true,
     "trainer": {
       "num_epochs": num_epochs,
       "grad_norm": 5.0,
       "patience": 10,
       "cuda_device": cuda_device,
       "validation_metric": "+accuracy",
-      "num_serialized_models_to_keep": 3,
       "optimizer": {
         "type": "dense_sparse_adam",
         "betas": [0.9, 0.999]
