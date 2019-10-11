@@ -161,3 +161,16 @@ Predict the Faroese test set with the various target taggers and parsers.
 ```bash
 ./scripts/predict_target_parser.sh <model_type>
 ```
+
+Train/ predict using multi-treebank target models.
+
+```bash
+./scripts/train_multi_target_tagger.sh <model_type>
+
+./scripts/train_multi_ target_parser.sh <model_type>
+
+./scripts/predict_multi_target_tagger.sh <model_type>
+
+./scripts/predict_multi_target_parser.sh <model_type>
+```
+
