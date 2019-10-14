@@ -11,6 +11,7 @@ The code will be tidied up over the next couple of weeks.
 - [Train models](#train-source-models)
 - [Predict](#predict-translated-source-files)
 - [Projection steps](#projection-steps)
+- [Train/Predict target models](#train-target-models)
 
 
 ## Installation
