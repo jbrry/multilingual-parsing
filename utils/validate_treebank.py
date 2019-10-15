@@ -1,3 +1,5 @@
+# original file: https://github.com/ftyers/cross-lingual-parsing/blob/master/utils/validate_treebank.py
+
 import sys
 import os
 from conllu_parser import Sentence

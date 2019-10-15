@@ -1,3 +1,5 @@
+# original: https://github.com/ftyers/cross-lingual-parsing/blob/master/utils/project-aligned-trees.py
+
 import sys
 
 

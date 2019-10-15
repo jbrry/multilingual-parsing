@@ -1,3 +1,5 @@
+# original: https://github.com/ftyers/cross-lingual-parsing/blob/master/utils/conllu_parser.py
+
 class Sentence:
 
 	def __init__(self, blokk):

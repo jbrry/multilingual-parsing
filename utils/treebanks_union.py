@@ -1,3 +1,5 @@
+# original: https://github.com/ftyers/cross-lingual-parsing/blob/master/utils/treebanks_union.py
+
 import os
 import sys
 import random

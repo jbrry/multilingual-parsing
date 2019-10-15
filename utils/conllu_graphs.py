@@ -1,3 +1,5 @@
+# original file: https://github.com/ftyers/cross-lingual-parsing/blob/master/utils/conllu-graphs.py
+
 import os
 import sys
 from collections import Counter
@@ -130,7 +132,7 @@ def get_treebank():
     """
     treebank = []
     nob = []
-    for fname in sys.argv[1:-1]:
+    for fname in sys.argv[1:-2]:
         print(fname)
         with open(fname) as f:
             sents = f.read().split('\n\n')
@@ -268,7 +270,11 @@ if __name__ == '__main__':
         quit()
 
     model_type = str(sys.argv[-1])
-    print(model_type)
+    print("model type", model_type)
+
+    random_seed = str(sys.argv[-2])
+    print(random_seed)
+
     out_path = os.path.join('output', model_type, 'tmp')
     print('out path: {}'.format(out_path))
 
@@ -276,13 +282,12 @@ if __name__ == '__main__':
         print('could not find out path: {}'.format(out_path))
         os.mkdir(out_path)
 
-
     treebank, difflen_nob = get_treebank()
     print('difflen_nob: ' + str(len(difflen_nob)))
     combined = get_combined(treebank)
 
-    with open(f'{out_path}/combined_four.conllu', 'w') as f:
+    with open(f'{out_path}/combined_four_{random_seed}.conllu', 'w') as f:
         f.write('\n\n'.join(combined))
-    with open(f'{out_path}/combined_difflen_four.conllu', 'w') as f:
+    with open(f'{out_path}/combined_difflen_four_{random_seed}.conllu', 'w') as f:
         f.write('\n\n'.join(str(s) for s in difflen_nob))
 
