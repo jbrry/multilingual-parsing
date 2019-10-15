@@ -1,13 +1,16 @@
+# original: https://github.com/ftyers/cross-lingual-parsing/blob/master/utils/check_double_headed.py
+
 import sys
 from conllu_parser import Sentence
 
 model_type = str(sys.argv[1])
 print('model type: {}'.format(model_type))
 
-with open(f'output/{model_type}/validated/combined_four.conllu') as f:
+random_seed = str(sys.argv[2])
+
+with open(f'output/{model_type}/validated/combined_four_{random_seed}.conllu') as f:
     t = f.read()
 sents = [Sentence(s) for s in t.split('\n\n')]
-
 
 def find_root(sent):
     root_tokens = []
@@ -33,5 +36,5 @@ for sent in sents:
 print('# good: ' + str(len(good)))
 print('# doubleheaded: ' + str(len(doubleheaded)))
 
-with open(f'output/{model_type}/validated/comb.conllu', 'w') as f:
+with open(f'output/{model_type}/validated/comb_{random_seed}.conllu', 'w') as f:
     f.write('\n\n'.join(str(s) for s in good))
