@@ -1,6 +1,6 @@
 # multilingual-parsing
 
-Repository for Cross-lingual Parsing with Polyglot Training and Multi-treebank Learning: A Faroese Case Study, submitted to the [DeepLo Workshop at EMNLP 2019](https://sites.google.com/view/deeplo19/).
+Repository for [Cross-lingual Parsing with Polyglot Training and Multi-treebank Learning: A Faroese Case Study](https://arxiv.org/abs/1910.07938), submitted to the [DeepLo Workshop at EMNLP 2019](https://sites.google.com/view/deeplo19/).
 
 The code will be tidied up over the next couple of weeks.
 
