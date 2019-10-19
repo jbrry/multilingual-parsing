@@ -5,10 +5,9 @@
    between you (the “Licensee” or “you”) and Dublin City
    University of Collins Avenue, Glasnevin, Dublin 9, Ireland (the
    “Licensor”, “DCU”, “us” or “we”) for James Barry’s multilingual
-   parsing in any version publsihed on
-   https://github.com/Jbar-ry/multilingual-parsing that contains
-   this licence in a file “LICENSE.txt” in the repository’s main
-   folder (the “Software”).
+   parsing in any version published or distributed with this
+   licence in a file “LICENSE.txt” present in its main folder (the
+   “Software”).
 
    IMPORTANT NOTICE TO ALL USERS:
 
